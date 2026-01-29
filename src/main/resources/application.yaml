@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: finapp
+  profiles:
+    active: local
