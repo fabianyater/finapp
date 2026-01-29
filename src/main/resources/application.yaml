@@ -3,3 +3,8 @@ spring:
     name: finapp
   profiles:
     active: local
+
+jwt:
+  secret: your_jwt_secret_key
+  expirationInSeconds: 3600
+  issuer: finapp
