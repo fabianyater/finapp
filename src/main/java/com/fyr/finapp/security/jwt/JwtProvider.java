@@ -4,7 +4,6 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,12 +14,18 @@ import java.util.Date;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class JwtProvider {
+
     private static final String ROLES_CLAIM = "roles";
     private static final long MILLIS_PER_SECOND = 1_000L;
 
     private final JwtProperties jwtProperties;
+    private final SecretKey signingKey;
+
+    public JwtProvider(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+        this.signingKey = buildSigningKey(jwtProperties.getSecret());
+    }
 
     public String generateToken(UserDetails userDetails) {
         var roles = userDetails.getAuthorities()
@@ -31,7 +36,6 @@ public class JwtProvider {
         long nowMillis = System.currentTimeMillis();
         Date issuedAt = new Date(nowMillis);
         Date expiresAt = new Date(nowMillis + jwtProperties.getExpirationInSeconds() * MILLIS_PER_SECOND);
-        String issuer = jwtProperties.getIssuer();
 
         return Jwts.builder()
                 .subject(userDetails.getUsername())
@@ -39,7 +43,7 @@ public class JwtProvider {
                 .issuedAt(issuedAt)
                 .expiration(expiresAt)
                 .issuer(jwtProperties.getIssuer())
-                .signWith(signingKey(), Jwts.SIG.HS256)
+                .signWith(signingKey, Jwts.SIG.HS256)
                 .compact();
     }
 
@@ -49,13 +53,13 @@ public class JwtProvider {
                 .getPayload();
     }
 
-    public void getSubject(String token) {
-        getClaims(token).getSubject();
+    public String getSubject(String token) {
+        return getClaims(token).getSubject();
     }
 
-    public boolean validate(String token){
+    public boolean validate(String token) {
         try {
-            getSubject(token);
+            parser().parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
             log.error("token expired");
@@ -73,16 +77,13 @@ public class JwtProvider {
 
     private JwtParser parser() {
         return Jwts.parser()
-                .verifyWith(signingKey())
+                .verifyWith(signingKey)
+                .requireIssuer(jwtProperties.getIssuer())
                 .build();
     }
 
-    private SecretKey signingKey() {
-        return getKey(jwtProperties.getSecret());
-    }
-
-    private SecretKey getKey(String secret) {
-        byte[] secretBytes = Decoders.BASE64URL.decode(secret);
+    private SecretKey buildSigningKey(String secret) {
+        byte[] secretBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(secretBytes);
     }
 }
