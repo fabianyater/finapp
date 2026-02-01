@@ -1,6 +1,7 @@
 package com.fyr.finapp.domain.model.user.vo;
 
 import com.fyr.finapp.domain.exception.DomainException;
+//TODO: Add unit tests for all VOs classes
 
 public record DateFormatPattern(String value) {
     public DateFormatPattern {
