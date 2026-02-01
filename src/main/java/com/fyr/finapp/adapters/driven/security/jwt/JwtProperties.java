@@ -1,4 +1,4 @@
-package com.fyr.finapp.security.jwt;
+package com.fyr.finapp.adapters.driven.security.jwt;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
