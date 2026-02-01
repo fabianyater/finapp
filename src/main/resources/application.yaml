@@ -5,6 +5,6 @@ spring:
     active: local
 
 jwt:
-  secret: your_jwt_secret_key
+  secret: ${JWT_SECRET}
   expirationInSeconds: 3600
   issuer: finapp
