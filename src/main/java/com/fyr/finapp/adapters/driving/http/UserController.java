@@ -3,6 +3,7 @@ package com.fyr.finapp.adapters.driving.http;
 import com.fyr.finapp.adapters.driving.http.dto.CreateUserRequest;
 import com.fyr.finapp.adapters.driving.http.dto.CreateUserResponse;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ class UserController {
     private final CreateUserUseCase createUserUseCase;
 
     @PostMapping
-    public ResponseEntity<CreateUserResponse> create(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<CreateUserResponse> create(@Valid @RequestBody CreateUserRequest request) {
         var command = new CreateUserUseCase.CreateUserCommand(
                 request.name(),
                 request.surname(),
