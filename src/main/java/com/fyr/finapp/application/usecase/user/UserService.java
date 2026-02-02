@@ -1,8 +1,8 @@
 package com.fyr.finapp.application.usecase.user;
 
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
-import com.fyr.finapp.domain.exception.DomainException;
 import com.fyr.finapp.domain.exception.EmailAlreadyInUseException;
+import com.fyr.finapp.domain.exception.ErrorCode;
 import com.fyr.finapp.domain.exception.messages.UserErrorMessages;
 import com.fyr.finapp.domain.model.user.User;
 import com.fyr.finapp.domain.model.user.UserPreference;
@@ -33,7 +33,7 @@ public class UserService implements CreateUserUseCase {
         if (userRepository.existsByEmail(email.value())) {
             throw new EmailAlreadyInUseException(
                     UserErrorMessages.EMAIL_ALREADY_EXISTS,
-                    DomainException.ErrorCode.EMAIL_ALREADY_EXISTS);
+                    ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         PlainPassword plainPassword = new PlainPassword(command.password());
