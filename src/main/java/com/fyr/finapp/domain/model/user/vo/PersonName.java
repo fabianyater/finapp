@@ -7,7 +7,8 @@ public record PersonName(String value) {
         if (value == null) throw new DomainException("name is required", DomainException.ErrorCode.NAME_REQUIRED);
         String v = value.trim();
         if (v.isBlank()) throw new DomainException("name is blank", DomainException.ErrorCode.NAME_BLANK);
-        if (v.length() > 80) throw new DomainException("name too long, max 80 characters", DomainException.ErrorCode.NAME_TOO_LONG);
+        if (v.length() > 80)
+            throw new DomainException("name too long, max 80 characters", DomainException.ErrorCode.NAME_TOO_LONG);
         value = v;
     }
 }

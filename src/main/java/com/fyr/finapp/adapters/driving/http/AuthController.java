@@ -18,7 +18,9 @@ class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticateUseCase.AuthResult> login(
-            @Valid @RequestBody AuthenticateUseCase.LoginCommand request
+            @Valid
+            @RequestBody
+            AuthenticateUseCase.LoginCommand request
     ) {
         var result = authenticateUseCase.authenticate(request);
         return ResponseEntity.status(HttpStatus.OK).body(result);

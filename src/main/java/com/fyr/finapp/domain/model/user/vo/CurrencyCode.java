@@ -6,7 +6,8 @@ import java.util.Currency;
 
 public record CurrencyCode(String value) {
     public CurrencyCode {
-        if (value == null) throw new DomainException("currency is required", DomainException.ErrorCode.CURRENCY_REQUIRED);
+        if (value == null)
+            throw new DomainException("currency is required", DomainException.ErrorCode.CURRENCY_REQUIRED);
         String v = value.trim().toUpperCase();
         try {
             Currency.getInstance(v);
