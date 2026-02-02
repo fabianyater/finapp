@@ -72,4 +72,16 @@ public class ErrorHandler {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleUnexpected(Exception ex) {
+        var body = new ApiError(
+                "SERVER_ERROR",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Unexpected error",
+                Map.of()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
 }
