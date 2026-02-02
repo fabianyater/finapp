@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("${api.base-path}/users")
 class UserController {
     private final CreateUserUseCase createUserUseCase;
 

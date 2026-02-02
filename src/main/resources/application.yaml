@@ -4,6 +4,9 @@ spring:
   profiles:
     active: local
 
+api:
+  base-path: /api/v1
+
 jwt:
   secret: ${JWT_SECRET}
   expirationInSeconds: 3600
