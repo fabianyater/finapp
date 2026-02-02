@@ -10,4 +10,5 @@ public final class UserValidationMessages {
     public static final String EMAIL_INVALID = "Invalid email";
     public static final String EMAIL_TOO_LONG = "Email too long";
     public static final String PASSWORD_LENGTH = "Password must be between 10 and 72 characters";
+    public static final String PASSWORD_REQUIRED = "Password is required";
 }

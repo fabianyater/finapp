@@ -1,5 +1,6 @@
 package com.fyr.finapp.adapters.driving.http;
 
+import com.fyr.finapp.adapters.driving.http.dto.LoginRequest;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,11 @@ class AuthController {
     public ResponseEntity<AuthenticateUseCase.AuthResult> login(
             @Valid
             @RequestBody
-            AuthenticateUseCase.LoginCommand request
+            LoginRequest request
     ) {
-        var result = authenticateUseCase.authenticate(request);
+        var cmd = new AuthenticateUseCase.LoginCommand(request.email(), request.password());
+        var result = authenticateUseCase.authenticate(cmd);
+
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
