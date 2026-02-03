@@ -1,7 +1,7 @@
 package com.fyr.finapp.adapters.driving.http;
 
 import com.fyr.finapp.domain.exception.DomainException;
-import com.fyr.finapp.domain.exception.ErrorCode;
+import com.fyr.finapp.domain.exception.ErrorCategory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,8 +20,8 @@ public class ErrorHandler {
     public record ApiError(String status, int code, String message, Map<String, List<String>> errors) {
     }
 
-    private static HttpStatus statusOf(ErrorCode code) {
-        return switch (code.category()) {
+    private static HttpStatus statusOf(ErrorCategory category) {
+        return switch (category) {
             case VALIDATION -> HttpStatus.BAD_REQUEST;
             case CONFLICT -> HttpStatus.CONFLICT;
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
@@ -52,13 +52,13 @@ public class ErrorHandler {
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ApiError> handleDomainValidation(DomainException ex) {
         var body = new ApiError(
-                ex.getCode().category().name(),
-                statusOf(ex.getCode()).value(),
+                ex.getCode().name(),
+                statusOf(ex.getCategory()).value(),
                 ex.getMessage(),
                 Map.of()
         );
 
-        return ResponseEntity.status(statusOf(ex.getCode())).body(body);
+        return ResponseEntity.status(statusOf(ex.getCategory())).body(body);
     }
 
     @ExceptionHandler(BadCredentialsException.class)

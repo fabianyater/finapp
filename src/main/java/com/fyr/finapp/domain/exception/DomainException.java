@@ -1,14 +1,20 @@
 package com.fyr.finapp.domain.exception;
 
-public class DomainException extends RuntimeException{
-    private final ErrorCode code;
+public class DomainException extends RuntimeException {
+    private final DomainErrorCode code;
+    private final ErrorCategory category;
 
-    public DomainException(String message, ErrorCode code) {
+    protected DomainException(String message, DomainErrorCode code, ErrorCategory category) {
         super(message);
         this.code = code;
+        this.category = category;
     }
 
-    public ErrorCode getCode() {
+    public DomainErrorCode getCode() {
         return code;
+    }
+
+    public ErrorCategory getCategory() {
+        return category;
     }
 }
