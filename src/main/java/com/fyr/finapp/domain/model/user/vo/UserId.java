@@ -1,12 +1,12 @@
 package com.fyr.finapp.domain.model.user.vo;
 
-import com.fyr.finapp.domain.exception.DomainException;
-import com.fyr.finapp.domain.exception.ErrorCode;
+import com.fyr.finapp.domain.exception.ValidationException;
+import com.fyr.finapp.domain.model.user.exception.UserErrorCode;
 
 import java.util.UUID;
 
 public record UserId(UUID value) {
     public UserId {
-        if (value == null) throw new DomainException("userId is required", ErrorCode.USER_ID_REQUIRED);
+        if (value == null) throw new ValidationException("userId is required", UserErrorCode.ID_REQUIRED);
     }
 }
