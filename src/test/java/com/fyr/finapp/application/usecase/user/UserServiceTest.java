@@ -1,7 +1,7 @@
 package com.fyr.finapp.application.usecase.user;
 
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
-import com.fyr.finapp.domain.exception.EmailAlreadyInUseException;
+import com.fyr.finapp.domain.exception.ConflictException;
 import com.fyr.finapp.domain.model.user.User;
 import com.fyr.finapp.domain.model.user.vo.PasswordHash;
 import com.fyr.finapp.domain.model.user.vo.UserId;
@@ -68,7 +68,7 @@ class UserServiceTest {
         var userService = new UserService(userRepository, userPreferenceRepository, encryptionRepository);
 
         assertThatThrownBy(() -> userService.create(createUserCommand))
-                .isInstanceOf(EmailAlreadyInUseException.class)
+                .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("Email already exists");
 
         verify(userRepository).existsByEmail(email);

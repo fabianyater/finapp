@@ -1,5 +1,6 @@
 package com.fyr.finapp.domain.model.user;
 
+import com.fyr.finapp.domain.model.common.vo.Currency;
 import com.fyr.finapp.domain.model.user.vo.*;
 
 import java.time.OffsetDateTime;
@@ -7,7 +8,7 @@ import java.time.OffsetDateTime;
 public class UserPreference {
     private PreferenceId id;
     private LocaleTag locale;
-    private CurrencyCode currency;
+    private Currency currency;
     private TimezoneId timezone;
     private Boolean darkMode;
     private FirstDayOfWeek firstDayOfWeek;
@@ -19,7 +20,7 @@ public class UserPreference {
     public UserPreference() {
     }
 
-    public UserPreference(PreferenceId id, LocaleTag locale, CurrencyCode currency, TimezoneId timezone, Boolean darkMode, FirstDayOfWeek firstDayOfWeek, DateFormatPattern dateFormat, OffsetDateTime createdAt, OffsetDateTime updatedAt, UserId user) {
+    public UserPreference(PreferenceId id, LocaleTag locale, Currency currency, TimezoneId timezone, Boolean darkMode, FirstDayOfWeek firstDayOfWeek, DateFormatPattern dateFormat, OffsetDateTime createdAt, OffsetDateTime updatedAt, UserId user) {
         this.id = id;
         this.locale = locale;
         this.currency = currency;
@@ -48,11 +49,11 @@ public class UserPreference {
         this.locale = locale;
     }
 
-    public CurrencyCode getCurrency() {
+    public Currency getCurrency() {
         return currency;
     }
 
-    public void setCurrency(CurrencyCode currency) {
+    public void setCurrency(Currency currency) {
         this.currency = currency;
     }
 

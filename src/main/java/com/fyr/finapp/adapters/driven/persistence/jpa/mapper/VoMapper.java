@@ -2,6 +2,7 @@ package com.fyr.finapp.adapters.driven.persistence.jpa.mapper;
 
 
 import com.fyr.finapp.adapters.driven.persistence.jpa.entity.UserEntity;
+import com.fyr.finapp.domain.model.common.vo.Currency;
 import com.fyr.finapp.domain.model.user.vo.*;
 import org.mapstruct.Mapper;
 
@@ -68,12 +69,12 @@ public interface VoMapper {
         return locale == null ? null : new LocaleTag(locale);
     }
 
-    default String map(CurrencyCode currency) {
-        return currency == null ? null : currency.value();
+    default String map(Currency currency) {
+        return currency == null ? null : currency.code();
     }
 
-    default CurrencyCode mapCurrencyCode(String currency) {
-        return currency == null ? null : new CurrencyCode(currency);
+    default Currency mapCurrencyCode(String currency) {
+        return currency == null ? null : new Currency(currency);
     }
 
     default String map(TimezoneId timezone) {
