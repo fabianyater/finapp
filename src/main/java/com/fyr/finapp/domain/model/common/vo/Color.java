@@ -20,5 +20,5 @@ public record Color(String value) {
         return new Color(hex);
     }
 
-    public static Color DEFAULT = new Color("#004ab3");
+    public static final Color DEFAULT = new Color("#004ab3");
 }

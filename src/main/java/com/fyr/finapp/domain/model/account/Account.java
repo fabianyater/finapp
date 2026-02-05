@@ -62,9 +62,7 @@ public class Account {
             UserId userId,
             AccountName name,
             AccountType type,
-            Money initialBalance,
-            Icon icon,
-            Color color
+            Money initialBalance
     ) {
         Instant now = Instant.now();
         return new Account(
@@ -73,8 +71,8 @@ public class Account {
                 name,
                 type,
                 initialBalance,
-                icon,
-                color,
+                type.getDefaultIcon(),
+                type.getDefaultColor(),
                 false,
                 false,
                 false,
