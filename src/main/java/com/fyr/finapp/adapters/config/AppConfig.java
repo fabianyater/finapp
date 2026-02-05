@@ -1,18 +1,24 @@
 package com.fyr.finapp.adapters.config;
 
+import com.fyr.finapp.adapters.driven.persistence.jpa.adapter.AccountAdapter;
 import com.fyr.finapp.adapters.driven.persistence.jpa.adapter.UserAdapter;
 import com.fyr.finapp.adapters.driven.persistence.jpa.adapter.UserPreferenceAdapter;
+import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.IAccountMapper;
 import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.IUserEntityMapper;
 import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.IUserPreferenceEntityMapper;
+import com.fyr.finapp.adapters.driven.persistence.jpa.repository.AccountJpaRepository;
 import com.fyr.finapp.adapters.driven.persistence.jpa.repository.UserJpaRepository;
 import com.fyr.finapp.adapters.driven.persistence.jpa.repository.UserPreferenceJpaRepository;
 import com.fyr.finapp.adapters.driven.security.auth.AuthenticationAdapter;
 import com.fyr.finapp.adapters.driven.security.encryption.EncryptionAdapter;
 import com.fyr.finapp.adapters.driven.security.jwt.JwtProvider;
+import com.fyr.finapp.application.usecase.account.AccountService;
 import com.fyr.finapp.application.usecase.auth.AuthenticationService;
 import com.fyr.finapp.application.usecase.user.UserService;
+import com.fyr.finapp.domain.api.account.CreateAccountUseCase;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
+import com.fyr.finapp.domain.spi.account.IAccountRepository;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.auth.IEncryptionRepository;
 import com.fyr.finapp.domain.spi.user.IUserPreferenceRepository;
@@ -30,7 +36,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
-    private final IUserEntityMapper userEntityMapper;
     private final IUserPreferenceEntityMapper userPreferenceEntityMapper;
     // ----- Adapters (implement Ports) -----
 
@@ -63,13 +68,18 @@ public class AppConfig {
     }
 
     @Bean
-    public IUserRepository userRepositoryPort(UserJpaRepository userJpaRepository) {
-        return new UserAdapter(userJpaRepository, userEntityMapper);
+    public IUserRepository userRepositoryPort(UserJpaRepository userJpaRepository, IUserEntityMapper userMapper) {
+        return new UserAdapter(userJpaRepository, userMapper);
     }
 
     @Bean
     public IUserPreferenceRepository preferenceRepositoryPort(UserPreferenceJpaRepository userPreferenceJpaRepository, EntityManager em) {
         return new UserPreferenceAdapter(userPreferenceJpaRepository, userPreferenceEntityMapper, em);
+    }
+
+    @Bean
+    public IAccountRepository accountRepositoryPort(AccountJpaRepository accountJpaRepository, EntityManager em, IAccountMapper accountMapper) {
+        return new AccountAdapter(accountJpaRepository, em, accountMapper);
     }
 
     // ----- Use Cases (Application layer) -----
@@ -87,6 +97,15 @@ public class AppConfig {
             TransactionalExecutor tx) {
         CreateUserUseCase core = new UserService(userRepositoryPort, preferenceRepositoryPort, encryptionRepository);
 
+        return command -> tx.required(() -> core.create(command));
+    }
+
+    @Bean
+    public CreateAccountUseCase createAccountUseCase(
+            IAccountRepository accountRepository,
+            IAuthenticationRepository authenticationRepository,
+            TransactionalExecutor tx) {
+        CreateAccountUseCase core = new AccountService(accountRepository, authenticationRepository);
         return command -> tx.required(() -> core.create(command));
     }
 }
