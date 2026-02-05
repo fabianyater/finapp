@@ -21,4 +21,8 @@ public record AccountName(String value) {
 
         value = trimmed;
     }
+
+    public static AccountName of(String name) {
+        return new AccountName(name);
+    }
 }
