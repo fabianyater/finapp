@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -37,6 +39,9 @@ public class UserEntity {
 
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<AccountEntity> accountEntities = new LinkedHashSet<>();
 
     @PrePersist
     public void prePersist() {
