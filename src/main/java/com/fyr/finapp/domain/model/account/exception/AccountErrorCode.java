@@ -9,7 +9,9 @@ public enum AccountErrorCode implements DomainErrorCode {
     NAME_REQUIRED(ErrorCategory.VALIDATION),
     NAME_TOO_LONG(ErrorCategory.VALIDATION),
     TYPE_INVALID(ErrorCategory.VALIDATION),
-    AMOUNT_NEGATIVE(ErrorCategory.VALIDATION);
+    AMOUNT_NEGATIVE(ErrorCategory.VALIDATION),
+    NAME_ALREADY_EXISTS(ErrorCategory.VALIDATION),
+    INVALID_INITIAL_BALANCE(ErrorCategory.VALIDATION);
 
     private final ErrorCategory category;
 
