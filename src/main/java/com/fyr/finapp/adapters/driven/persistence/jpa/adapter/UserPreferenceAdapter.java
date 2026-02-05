@@ -26,6 +26,6 @@ public class UserPreferenceAdapter implements IUserPreferenceRepository {
                 userId
         ));
 
-        mapper.toUser(repo.save(userPreferenceEntity));
+        repo.save(userPreferenceEntity);
     }
 }
