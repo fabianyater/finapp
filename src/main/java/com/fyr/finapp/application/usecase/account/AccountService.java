@@ -6,8 +6,8 @@ import com.fyr.finapp.domain.model.account.Account;
 import com.fyr.finapp.domain.model.account.exception.AccountErrorCode;
 import com.fyr.finapp.domain.model.account.vo.AccountName;
 import com.fyr.finapp.domain.model.account.vo.AccountType;
-import com.fyr.finapp.domain.model.common.vo.Currency;
-import com.fyr.finapp.domain.model.common.vo.Money;
+import com.fyr.finapp.domain.common.vo.Currency;
+import com.fyr.finapp.domain.common.vo.Money;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
@@ -38,7 +38,7 @@ public class AccountService implements CreateAccountUseCase {
 
         }
 
-        List<Account> existingAccounts = accountRepository.findByUserId(userId);
+        List<Account> existingAccounts = accountRepository.findByUserId(userId, null).accounts();
 
         if (existingAccounts.isEmpty()) account.markAsDefault();
 

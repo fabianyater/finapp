@@ -3,7 +3,9 @@ package com.fyr.finapp.adapters.driving.http;
 
 import com.fyr.finapp.adapters.driving.http.dto.CreateAccountRequest;
 import com.fyr.finapp.adapters.driving.http.dto.CreateAccountResponse;
+import com.fyr.finapp.adapters.driving.http.dto.PagedAccountResponse;
 import com.fyr.finapp.domain.api.account.CreateAccountUseCase;
+import com.fyr.finapp.domain.api.account.ListAccountsUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,16 +15,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Instant;
+import java.util.Set;
 
 @Tag(name = "Accounts", description = "Account management endpoints")
 @RestController
@@ -30,6 +32,7 @@ import java.net.URI;
 @RequestMapping("${api.base-path}/accounts")
 public class AccountController {
     private final CreateAccountUseCase createAccountUseCase;
+    private final ListAccountsUseCase listAccountsUseCase;
 
 
     @Operation(
@@ -93,5 +96,56 @@ public class AccountController {
         return ResponseEntity
                 .created(location)
                 .body(response);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping
+    @Operation(
+            summary = "List accounts",
+            description = "Get paginated list of accounts with filtering, sorting and search capabilities"
+    )
+    public ResponseEntity<PagedAccountResponse> listAccounts(
+            @Parameter(description = "Page number (0-based)")
+            @RequestParam(defaultValue = "0") int page,
+
+            @Parameter(description = "Page size (1-100)")
+            @RequestParam(defaultValue = "20") int size,
+
+            @Parameter(description = "Sort field: name, createdAt, updatedAt, initialBalance, type")
+            @RequestParam(required = false) String sortBy,
+
+            @Parameter(description = "Sort direction: ASC or DESC")
+            @RequestParam(required = false) ListAccountsUseCase.SortDirection direction,
+
+            @Parameter(description = "Filter by account types")
+            @RequestParam(required = false) Set<String> types,
+
+            @Parameter(description = "Search by account name")
+            @RequestParam(required = false) String search,
+
+            @Parameter(description = "Filter accounts created after this date")
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Instant createdAfter,
+
+            @Parameter(description = "Filter accounts created before this date")
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Instant createdBefore
+    ) {
+        var query = new ListAccountsUseCase.AccountQuery(
+                page,
+                size,
+                sortBy,
+                direction,
+                types,
+                search,
+                createdAfter,
+                createdBefore
+        );
+
+        var result = listAccountsUseCase.execute(query);
+
+        return ResponseEntity.ok(PagedAccountResponse.from(result));
     }
 }
