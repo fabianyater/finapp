@@ -5,9 +5,9 @@ import com.fyr.finapp.domain.model.account.Account;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.account.vo.AccountName;
 import com.fyr.finapp.domain.model.account.vo.AccountType;
-import com.fyr.finapp.domain.model.common.vo.Color;
-import com.fyr.finapp.domain.model.common.vo.Icon;
-import com.fyr.finapp.domain.model.common.vo.Money;
+import com.fyr.finapp.domain.common.vo.Color;
+import com.fyr.finapp.domain.common.vo.Icon;
+import com.fyr.finapp.domain.common.vo.Money;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +24,7 @@ public interface IAccountMapper {
     @Mapping(target = "name", source = "name.value")
     @Mapping(target = "type", source = "type", qualifiedByName = "accountTypeToString")
     @Mapping(target = "initialBalance", source = "initialBalance.amount")
-    @Mapping(target = "currency", source = "initialBalance.currency.code")
+    @Mapping(target = "currency", source = "currency.code")
     @Mapping(target = "icon", source = "icon.name")
     @Mapping(target = "color", source = "color.value")
     @Mapping(target = "isDefault", source = "defaultAccount")
