@@ -26,11 +26,6 @@ public record AccountQuery(Pagination pagination,
     }
 
     record Pagination(int page, int size) {
-        private static final int MIN_PAGE = 0;
-        private static final int MIN_SIZE = 1;
-        private static final int MAX_SIZE = 100;
-        private static final int DEFAULT_SIZE = 20;
-
         public Pagination {
             if (page < MIN_PAGE) {
                 throw new IllegalArgumentException("Page must be >= " + MIN_PAGE);
