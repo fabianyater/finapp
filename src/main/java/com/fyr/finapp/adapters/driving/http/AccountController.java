@@ -4,8 +4,10 @@ package com.fyr.finapp.adapters.driving.http;
 import com.fyr.finapp.adapters.driving.http.dto.CreateAccountRequest;
 import com.fyr.finapp.adapters.driving.http.dto.CreateAccountResponse;
 import com.fyr.finapp.adapters.driving.http.dto.PagedAccountResponse;
+import com.fyr.finapp.adapters.driving.http.dto.UpdateAccountRequest;
 import com.fyr.finapp.domain.api.account.CreateAccountUseCase;
 import com.fyr.finapp.domain.api.account.ListAccountsUseCase;
+import com.fyr.finapp.domain.api.account.UpdateAccountUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,6 +35,7 @@ import java.util.Set;
 public class AccountController {
     private final CreateAccountUseCase createAccountUseCase;
     private final ListAccountsUseCase listAccountsUseCase;
+    private final UpdateAccountUseCase updateAccountUseCase;
 
 
     @Operation(
@@ -147,5 +150,36 @@ public class AccountController {
         var result = listAccountsUseCase.execute(query);
 
         return ResponseEntity.ok(PagedAccountResponse.from(result));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(
+            @PathVariable String id,
+            @Valid
+            @RequestBody UpdateAccountRequest request) {
+        var command = new UpdateAccountUseCase.Command(
+                id,
+                request.name(),
+                request.type(),
+                request.initialBalance(),
+                request.icon(),
+                request.color(),
+                request.defaultAccount(),
+                request.excludeFromTotal()
+        );
+
+        updateAccountUseCase.update(command);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(id)
+                .toUri();
+
+        return ResponseEntity
+                .noContent()
+                .location(location)
+                .build();
     }
 }
