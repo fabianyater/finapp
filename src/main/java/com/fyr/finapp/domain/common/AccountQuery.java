@@ -3,6 +3,8 @@ package com.fyr.finapp.domain.common;
 import java.time.Instant;
 import java.util.Set;
 
+import static com.fyr.finapp.domain.common.constraints.CommonConstraints.*;
+
 //TODO: Ajustar los mensajes de error, las constantes, etc...
 public record AccountQuery(Pagination pagination,
                            Sorting sorting,

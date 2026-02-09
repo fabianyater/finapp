@@ -1,4 +1,4 @@
-package com.fyr.finapp.domain.model.common.constraints;
+package com.fyr.finapp.domain.common.constraints;
 
 import java.util.regex.Pattern;
 

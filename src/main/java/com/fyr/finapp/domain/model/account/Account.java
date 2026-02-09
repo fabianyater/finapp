@@ -3,10 +3,10 @@ package com.fyr.finapp.domain.model.account;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.account.vo.AccountName;
 import com.fyr.finapp.domain.model.account.vo.AccountType;
-import com.fyr.finapp.domain.model.common.vo.Color;
-import com.fyr.finapp.domain.model.common.vo.Currency;
-import com.fyr.finapp.domain.model.common.vo.Icon;
-import com.fyr.finapp.domain.model.common.vo.Money;
+import com.fyr.finapp.domain.common.vo.Color;
+import com.fyr.finapp.domain.common.vo.Currency;
+import com.fyr.finapp.domain.common.vo.Icon;
+import com.fyr.finapp.domain.common.vo.Money;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 
 import java.time.Instant;

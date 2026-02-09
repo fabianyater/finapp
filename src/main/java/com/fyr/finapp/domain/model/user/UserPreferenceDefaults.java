@@ -1,6 +1,6 @@
 package com.fyr.finapp.domain.model.user;
 
-import com.fyr.finapp.domain.model.common.vo.Currency;
+import com.fyr.finapp.domain.common.vo.Currency;
 import com.fyr.finapp.domain.model.user.vo.*;
 
 public final class UserPreferenceDefaults {

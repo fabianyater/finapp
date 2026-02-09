@@ -1,9 +1,9 @@
-package com.fyr.finapp.domain.model.common.vo;
+package com.fyr.finapp.domain.common.vo;
 
 import com.fyr.finapp.domain.exception.ValidationException;
-import com.fyr.finapp.domain.model.common.exception.SharedErrorCode;
+import com.fyr.finapp.domain.common.exception.SharedErrorCode;
 
-import static com.fyr.finapp.domain.model.common.constraints.CommonConstraints.HEX_PATTERN;
+import static com.fyr.finapp.domain.common.constraints.CommonConstraints.HEX_PATTERN;
 
 public record Color(String value) {
 
