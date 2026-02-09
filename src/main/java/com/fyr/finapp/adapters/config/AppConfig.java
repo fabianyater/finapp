@@ -14,10 +14,12 @@ import com.fyr.finapp.adapters.driven.security.encryption.EncryptionAdapter;
 import com.fyr.finapp.adapters.driven.security.jwt.JwtProvider;
 import com.fyr.finapp.application.usecase.account.AccountService;
 import com.fyr.finapp.application.usecase.account.ListAccountsService;
+import com.fyr.finapp.application.usecase.account.UpdateAccountService;
 import com.fyr.finapp.application.usecase.auth.AuthenticationService;
 import com.fyr.finapp.application.usecase.user.UserService;
 import com.fyr.finapp.domain.api.account.CreateAccountUseCase;
 import com.fyr.finapp.domain.api.account.ListAccountsUseCase;
+import com.fyr.finapp.domain.api.account.UpdateAccountUseCase;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
@@ -114,5 +116,10 @@ public class AppConfig {
     @Bean
     public ListAccountsUseCase listAccountsUseCase(IAccountRepository accountRepository, IAuthenticationRepository authenticationRepository) {
         return new ListAccountsService(accountRepository, authenticationRepository);
+    }
+
+    @Bean
+    public UpdateAccountUseCase updateAccountUseCase(IAccountRepository accountRepository, IAuthenticationRepository authenticationRepository) {
+        return new UpdateAccountService(accountRepository, authenticationRepository);
     }
 }
