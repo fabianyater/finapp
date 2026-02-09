@@ -112,6 +112,26 @@ public class Account {
                 createdAt,
                 updatedAt);
     }
+
+    public void update(
+            AccountName newName,
+            AccountType newType,
+            Money newInitialBalance,
+            Icon newIcon,
+            Color newColor
+    ) {
+        this.name = newName;
+        this.type = newType;
+        this.initialBalance = newInitialBalance;
+        this.icon = newIcon;
+        this.color = newColor;
+        this.updatedAt = Instant.now();
+    }
+
+    public void changeType(AccountType newType) {
+        this.type = newType;
+        this.icon = newType.getDefaultIcon();
+        this.color = newType.getDefaultColor();
     }
 
     public void rename(AccountName newName) {
