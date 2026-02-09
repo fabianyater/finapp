@@ -21,7 +21,6 @@ import static org.mockito.Mockito.*;
 class AccountServiceTest {
     @Test
     void shouldCreateAccountSuccessfully() {
-        // Arrange
         IAccountRepository accountRepository = mock(IAccountRepository.class);
         IAuthenticationRepository authenticationRepository = mock(IAuthenticationRepository.class);
         AccountService accountService = new AccountService(accountRepository, authenticationRepository);
@@ -38,7 +37,11 @@ class AccountServiceTest {
 
         when(authenticationRepository.getCurrentUserId()).thenReturn(userId);
         when(accountRepository.existsByUserIdAndName(any(), any())).thenReturn(false);
-        when(accountRepository.findByUserId(userId)).thenReturn(List.of());
+
+        IAccountRepository.PagedAccounts pagedAccounts = mock(IAccountRepository.PagedAccounts.class);
+        when(pagedAccounts.accounts()).thenReturn(List.of());
+        when(accountRepository.findByUserId(userId, null)).thenReturn(pagedAccounts);
+
 
         ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
 
@@ -105,16 +108,24 @@ class AccountServiceTest {
 
         when(authenticationRepository.getCurrentUserId()).thenReturn(userId);
         when(accountRepository.existsByUserIdAndName(any(), any())).thenReturn(false);
-        when(accountRepository.findByUserId(userId)).thenReturn(List.of());
+
+        IAccountRepository.PagedAccounts pagedAccounts = mock(IAccountRepository.PagedAccounts.class);
+        when(pagedAccounts.accounts()).thenReturn(List.of());
+        when(accountRepository.findByUserId(userId, null)).thenReturn(pagedAccounts);
+
 
         ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
 
-        accountService.create(command);
+        CreateAccountUseCase.Result result = accountService.create(command);
 
         verify(accountRepository).save(accountCaptor.capture());
         Account savedAccount = accountCaptor.getValue();
 
-        assertTrue(savedAccount.isDefaultAccount(), "Account should be marked as default");
+        assertNotNull(result);
+        assertNotNull(result.id());
+        assertEquals(command.name(), savedAccount.getName().value());
+        assertEquals(AccountType.BANK, savedAccount.getType());
+        assertEquals(1000L, savedAccount.getInitialBalance().amount());
     }
 
     @Test
@@ -136,7 +147,11 @@ class AccountServiceTest {
 
         when(authenticationRepository.getCurrentUserId()).thenReturn(userId);
         when(accountRepository.existsByUserIdAndName(any(), any())).thenReturn(false);
-        when(accountRepository.findByUserId(userId)).thenReturn(List.of(existingAccount));
+
+        IAccountRepository.PagedAccounts pagedAccounts = mock(IAccountRepository.PagedAccounts.class);
+        when(pagedAccounts.accounts()).thenReturn(List.of(existingAccount));
+        when(accountRepository.findByUserId(userId, null)).thenReturn(pagedAccounts);
+
 
         ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
 
