@@ -1,16 +1,17 @@
 package com.fyr.finapp.adapters.driven.persistence.jpa.mapper;
 
 import com.fyr.finapp.adapters.driven.persistence.jpa.entity.AccountEntity;
+import com.fyr.finapp.domain.common.vo.Color;
+import com.fyr.finapp.domain.common.vo.Icon;
+import com.fyr.finapp.domain.common.vo.Money;
 import com.fyr.finapp.domain.model.account.Account;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.account.vo.AccountName;
 import com.fyr.finapp.domain.model.account.vo.AccountType;
-import com.fyr.finapp.domain.common.vo.Color;
-import com.fyr.finapp.domain.common.vo.Icon;
-import com.fyr.finapp.domain.common.vo.Money;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
 import java.time.Instant;
@@ -34,6 +35,21 @@ public interface IAccountMapper {
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
     AccountEntity toEntity(Account account);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "name", source = "name.value")
+    @Mapping(target = "type", source = "type", qualifiedByName = "accountTypeToString")
+    @Mapping(target = "initialBalance", source = "initialBalance.amount")
+    @Mapping(target = "currency", source = "currency.code")
+    @Mapping(target = "icon", source = "icon.name")
+    @Mapping(target = "color", source = "color.value")
+    @Mapping(target = "isDefault", source = "defaultAccount")
+    @Mapping(target = "isArchived", source = "archived")
+    @Mapping(target = "excludeFromTotal", source = "excludeFromTotal")
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
+    @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
+    void updateEntityFromDomain(Account domain, @MappingTarget AccountEntity entity);
 
     default Account toDomain(AccountEntity entity) {
         if (entity == null) {

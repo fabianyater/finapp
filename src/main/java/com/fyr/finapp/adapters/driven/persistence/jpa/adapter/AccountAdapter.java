@@ -6,6 +6,7 @@ import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.IAccountMapper;
 import com.fyr.finapp.adapters.driven.persistence.jpa.repository.AccountJpaRepository;
 import com.fyr.finapp.adapters.driven.persistence.jpa.specification.AccountSpecifications;
 import com.fyr.finapp.domain.model.account.Account;
+import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.account.vo.AccountName;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -26,16 +28,17 @@ public class AccountAdapter implements IAccountRepository {
 
     @Override
     public void save(Account account) {
-        var accountEntity = mapper.toEntity(account);
-        UUID userId = account.getUserId().value();
+        UUID id = account.getId().value();
+        AccountEntity entity = repo.findById(id)
+                .orElseGet(AccountEntity::new);
 
-        accountEntity.setUser(entityManager.getReference(
-                UserEntity.class,
-                userId
-        ));
+        entity.setId(id);
 
+        mapper.updateEntityFromDomain(account, entity);
 
-        repo.save(accountEntity);
+        entity.setUser(entityManager.getReference(UserEntity.class, account.getUserId().value()));
+
+        repo.save(entity);
     }
 
     @Override
@@ -55,8 +58,19 @@ public class AccountAdapter implements IAccountRepository {
     }
 
     @Override
+    public Optional<Account> findById(AccountId id) {
+        return repo.findById(id.value())
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public boolean existsByUserIdAndName(UserId userId, AccountName name) {
-        return repo.existsByUser_IdAndName(userId.value(), name.value());
+        return repo.existsByUser_IdAndNameAllIgnoreCase(userId.value(), name.value());
+    }
+
+    @Override
+    public int unmarkAllAsDefault(UserId userId) {
+        return repo.unmarkAllAsDefault(userId.value());
     }
 
     private String mapSortField(String domainField) {
