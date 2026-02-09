@@ -26,6 +26,7 @@ public class ErrorHandler {
             case CONFLICT -> HttpStatus.CONFLICT;
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
             case SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case FORBIDDEN -> HttpStatus.FORBIDDEN;
         };
     }
 
