@@ -14,25 +14,26 @@ import java.util.Objects;
 
 public class Account {
     private final AccountId id;
+    private final UserId userId;
+    private final Instant createdAt;
+    private final Currency currency;
 
     private AccountName name;
-    private final AccountType type;
-    private final Money initialBalance;
+    private AccountType type;
+    private Money initialBalance;
     private Icon icon;
     private Color color;
-    private Currency currency;
 
     private boolean defaultAccount;
     private boolean archived;
     private boolean excludeFromTotal;
 
-    private final Instant createdAt;
     private Instant updatedAt;
-    private final UserId userId;
 
     private Account(
             AccountId id,
             UserId userId,
+            Currency currency,
             AccountName name,
             AccountType type,
             Money initialBalance,
@@ -46,6 +47,7 @@ public class Account {
     ) {
         this.id = id;
         this.userId = userId;
+        this.currency = currency;
         this.name = name;
         this.type = type;
         this.initialBalance = initialBalance;
@@ -68,6 +70,7 @@ public class Account {
         return new Account(
                 AccountId.generate(),
                 userId,
+                initialBalance.currency(),
                 name,
                 type,
                 initialBalance,
@@ -77,8 +80,7 @@ public class Account {
                 false,
                 false,
                 now,
-                now
-        );
+                now);
     }
 
     public static Account reconstruct(
@@ -98,6 +100,7 @@ public class Account {
         return new Account(
                 id,
                 userId,
+                initialBalance.currency(),
                 name,
                 type,
                 initialBalance,
@@ -107,8 +110,8 @@ public class Account {
                 isArchived,
                 excludeFromTotal,
                 createdAt,
-                updatedAt
-        );
+                updatedAt);
+    }
     }
 
     public void rename(AccountName newName) {
