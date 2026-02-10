@@ -1,10 +1,8 @@
 package com.fyr.finapp.adapters.driving.http;
 
 
-import com.fyr.finapp.adapters.driving.http.dto.CreateAccountRequest;
-import com.fyr.finapp.adapters.driving.http.dto.CreateAccountResponse;
-import com.fyr.finapp.adapters.driving.http.dto.PagedAccountResponse;
-import com.fyr.finapp.adapters.driving.http.dto.UpdateAccountRequest;
+import com.fyr.finapp.adapters.driving.http.dto.*;
+import com.fyr.finapp.domain.api.account.ArchiveAccountUseCase;
 import com.fyr.finapp.domain.api.account.CreateAccountUseCase;
 import com.fyr.finapp.domain.api.account.ListAccountsUseCase;
 import com.fyr.finapp.domain.api.account.UpdateAccountUseCase;
@@ -36,6 +34,7 @@ public class AccountController {
     private final CreateAccountUseCase createAccountUseCase;
     private final ListAccountsUseCase listAccountsUseCase;
     private final UpdateAccountUseCase updateAccountUseCase;
+    private final ArchiveAccountUseCase archiveAccountUseCase;
 
 
     @Operation(
@@ -175,6 +174,32 @@ public class AccountController {
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(id)
+                .toUri();
+
+        return ResponseEntity
+                .noContent()
+                .location(location)
+                .build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/{accountId}/archive")
+    public ResponseEntity<Void> archive(
+            @PathVariable String accountId,
+            @Valid
+            @RequestBody ArchiveAccountRequest request) {
+
+        archiveAccountUseCase.archive(
+                new ArchiveAccountUseCase.Command(
+                        accountId,
+                        request.excludeFromTotal()
+                )
+        );
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{accountId}")
+                .buildAndExpand(accountId)
                 .toUri();
 
         return ResponseEntity
