@@ -147,10 +147,7 @@ class AccountServiceTest {
 
         when(authenticationRepository.getCurrentUserId()).thenReturn(userId);
         when(accountRepository.existsByUserIdAndName(any(), any())).thenReturn(false);
-
-        IAccountRepository.PagedAccounts pagedAccounts = mock(IAccountRepository.PagedAccounts.class);
-        when(pagedAccounts.accounts()).thenReturn(List.of(existingAccount));
-        when(accountRepository.findByUserId(userId, null)).thenReturn(pagedAccounts);
+        when(accountRepository.findAllByUserId(userId)).thenReturn(List.of(existingAccount));
 
 
         ArgumentCaptor<Account> accountCaptor = ArgumentCaptor.forClass(Account.class);
