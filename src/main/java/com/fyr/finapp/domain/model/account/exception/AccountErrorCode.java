@@ -13,7 +13,8 @@ public enum AccountErrorCode implements DomainErrorCode {
     NAME_ALREADY_EXISTS(ErrorCategory.VALIDATION),
     INVALID_INITIAL_BALANCE(ErrorCategory.VALIDATION),
     ACCOUNT_NOT_FOUND(ErrorCategory.NOT_FOUND),
-    ACCESS_DENIED(ErrorCategory.FORBIDDEN);
+    ACCESS_DENIED(ErrorCategory.FORBIDDEN),
+    ACCOUNT_ALREADY_ARCHIVED(ErrorCategory.VALIDATION);
 
     private final ErrorCategory category;
 
