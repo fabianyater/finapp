@@ -12,11 +12,10 @@ import com.fyr.finapp.adapters.driven.persistence.jpa.repository.UserPreferenceJ
 import com.fyr.finapp.adapters.driven.security.auth.AuthenticationAdapter;
 import com.fyr.finapp.adapters.driven.security.encryption.EncryptionAdapter;
 import com.fyr.finapp.adapters.driven.security.jwt.JwtProvider;
-import com.fyr.finapp.application.usecase.account.AccountService;
-import com.fyr.finapp.application.usecase.account.ListAccountsService;
-import com.fyr.finapp.application.usecase.account.UpdateAccountService;
+import com.fyr.finapp.application.usecase.account.*;
 import com.fyr.finapp.application.usecase.auth.AuthenticationService;
 import com.fyr.finapp.application.usecase.user.UserService;
+import com.fyr.finapp.domain.api.account.ArchiveAccountUseCase;
 import com.fyr.finapp.domain.api.account.CreateAccountUseCase;
 import com.fyr.finapp.domain.api.account.ListAccountsUseCase;
 import com.fyr.finapp.domain.api.account.UpdateAccountUseCase;
@@ -89,6 +88,11 @@ public class AppConfig {
     // ----- Use Cases (Application layer) -----
 
     @Bean
+    public AccountValidator accountValidator(IAccountRepository accountRepository) {
+        return new AccountValidator(accountRepository);
+    }
+
+    @Bean
     public AuthenticateUseCase authenticateUseCase(IAuthenticationRepository authenticationRepository) {
         return new AuthenticationService(authenticationRepository);
     }
@@ -119,7 +123,19 @@ public class AppConfig {
     }
 
     @Bean
-    public UpdateAccountUseCase updateAccountUseCase(IAccountRepository accountRepository, IAuthenticationRepository authenticationRepository) {
-        return new UpdateAccountService(accountRepository, authenticationRepository);
+    public UpdateAccountUseCase updateAccountUseCase(
+            IAccountRepository accountRepository,
+            IAuthenticationRepository authenticationRepository,
+            AccountValidator accountValidator) {
+        return new UpdateAccountService(accountRepository, authenticationRepository, accountValidator);
+    }
+
+    @Bean
+    public ArchiveAccountUseCase archiveAccountUseCase(
+            IAccountRepository accountRepository,
+            IAuthenticationRepository authenticationRepository,
+            AccountValidator accountValidator
+    ) {
+        return new ArchiveAccountService(accountRepository, authenticationRepository, accountValidator);
     }
 }
