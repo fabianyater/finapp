@@ -38,7 +38,8 @@ public class AccountService implements CreateAccountUseCase {
 
         }
 
-        List<Account> existingAccounts = accountRepository.findByUserId(userId, null).accounts();
+        //TODO: This is a workaround to ensure that the first account created for a user is marked as default. We should have a better way to handle this in the future.
+        List<Account> existingAccounts = accountRepository.findAllByUserId(userId);
 
         if (existingAccounts.isEmpty()) account.markAsDefault();
 

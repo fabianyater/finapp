@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,12 +30,17 @@ public class AccountAdapter implements IAccountRepository {
     @Override
     public void save(Account account) {
         UUID id = account.getId().value();
-        AccountEntity entity = repo.findById(id)
-                .orElseGet(AccountEntity::new);
+        Optional<AccountEntity> existing = repo.findById(id);
+        AccountEntity entity;
 
-        entity.setId(id);
-
-        mapper.updateEntityFromDomain(account, entity);
+        if (existing.isPresent()) {
+            entity = existing.get();
+            mapper.updateEntityFromDomain(account, entity);
+        } else {
+            entity = new AccountEntity();
+            entity.setId(id);
+            mapper.updateEntityFromDomain(account, entity);
+        }
 
         entity.setUser(entityManager.getReference(UserEntity.class, account.getUserId().value()));
 
@@ -55,6 +61,14 @@ public class AccountAdapter implements IAccountRepository {
                 .toList();
 
         return new PagedAccounts(accounts, pageResult.getTotalElements());
+    }
+
+    @Override
+    public List<Account> findAllByUserId(UserId userId) {
+        return repo.findByUser_Id(userId.value())
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override

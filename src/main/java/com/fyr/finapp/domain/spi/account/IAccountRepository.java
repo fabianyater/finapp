@@ -13,6 +13,7 @@ import java.util.Set;
 public interface IAccountRepository {
     void save(Account account);
     PagedAccounts findByUserId(UserId userId, AccountFilters filters);
+    List<Account> findAllByUserId(UserId userId);
     Optional<Account> findById(AccountId id);
     boolean existsByUserIdAndName(UserId userId, AccountName name);
     int unmarkAllAsDefault(UserId userId);
