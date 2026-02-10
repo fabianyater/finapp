@@ -15,10 +15,7 @@ import com.fyr.finapp.adapters.driven.security.jwt.JwtProvider;
 import com.fyr.finapp.application.usecase.account.*;
 import com.fyr.finapp.application.usecase.auth.AuthenticationService;
 import com.fyr.finapp.application.usecase.user.UserService;
-import com.fyr.finapp.domain.api.account.ArchiveAccountUseCase;
-import com.fyr.finapp.domain.api.account.CreateAccountUseCase;
-import com.fyr.finapp.domain.api.account.ListAccountsUseCase;
-import com.fyr.finapp.domain.api.account.UpdateAccountUseCase;
+import com.fyr.finapp.domain.api.account.*;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
@@ -137,5 +134,13 @@ public class AppConfig {
             AccountValidator accountValidator
     ) {
         return new ArchiveAccountService(accountRepository, authenticationRepository, accountValidator);
+    }
+
+    @Bean
+    public AccountDetailsUseCase accountDetailsUseCase(
+            IAccountRepository accountRepository,
+            IAuthenticationRepository authenticationRepository,
+            AccountValidator accountValidator) {
+        return new AccountDetailsService(accountRepository, authenticationRepository, accountValidator);
     }
 }

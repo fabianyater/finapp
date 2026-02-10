@@ -2,10 +2,7 @@ package com.fyr.finapp.adapters.driving.http;
 
 
 import com.fyr.finapp.adapters.driving.http.dto.*;
-import com.fyr.finapp.domain.api.account.ArchiveAccountUseCase;
-import com.fyr.finapp.domain.api.account.CreateAccountUseCase;
-import com.fyr.finapp.domain.api.account.ListAccountsUseCase;
-import com.fyr.finapp.domain.api.account.UpdateAccountUseCase;
+import com.fyr.finapp.domain.api.account.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,7 +32,7 @@ public class AccountController {
     private final ListAccountsUseCase listAccountsUseCase;
     private final UpdateAccountUseCase updateAccountUseCase;
     private final ArchiveAccountUseCase archiveAccountUseCase;
-
+    private final AccountDetailsUseCase accountDetailsUseCase;
 
     @Operation(
             summary = "Create a new account",
@@ -149,6 +146,14 @@ public class AccountController {
         var result = listAccountsUseCase.execute(query);
 
         return ResponseEntity.ok(PagedAccountResponse.from(result));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountDetailsResponse> get(@PathVariable String id) {
+        var result = accountDetailsUseCase.getAccountDetails(id);
+
+        return ResponseEntity.ok(AccountDetailsResponse.from(result));
     }
 
     @PreAuthorize("isAuthenticated()")
