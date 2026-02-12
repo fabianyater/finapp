@@ -5,9 +5,11 @@ import com.fyr.finapp.domain.model.category.vo.CategoryName;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.shared.vo.TransactionType;
 
+import java.util.List;
+
 public interface ICategoryRepository {
     void save(Category category);
     void saveAll(Iterable<Category> categories);
-
+    List<Category> findAllByUserId(String userId);
     boolean existsByUserIdAndTypeAndName(UserId userId, TransactionType type, CategoryName name);
 }

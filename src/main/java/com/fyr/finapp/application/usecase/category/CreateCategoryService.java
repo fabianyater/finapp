@@ -14,12 +14,12 @@ import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 import jakarta.transaction.Transactional;
 import org.jspecify.annotations.NonNull;
 
-public class CategoryService implements CreateCategoryUseCase {
+public class CreateCategoryService implements CreateCategoryUseCase {
     private final ICategoryRepository categoryRepository;
     private final IAuthenticationRepository authenticationRepository;
 
-    public CategoryService(ICategoryRepository categoryRepository,
-                           IAuthenticationRepository authenticationRepository) {
+    public CreateCategoryService(ICategoryRepository categoryRepository,
+                                 IAuthenticationRepository authenticationRepository) {
         this.categoryRepository = categoryRepository;
         this.authenticationRepository = authenticationRepository;
     }

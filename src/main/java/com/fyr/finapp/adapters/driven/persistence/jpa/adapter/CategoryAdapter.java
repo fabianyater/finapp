@@ -59,6 +59,13 @@ public class CategoryAdapter implements ICategoryRepository {
     }
 
     @Override
+    public List<Category> findAllByUserId(String userId) {
+        return repo.findAllByUser_Id((UUID.fromString(userId))).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public boolean existsByUserIdAndTypeAndName(UserId userId, TransactionType type, CategoryName name) {
         return repo.existsByUser_IdAndTypeAndName(userId.value(), type.name(), name.value());
     }

@@ -63,7 +63,7 @@ public class Category {
     }
 
     // Factory method para reconstruir desde BD
-    public static Category reconstitute(
+    public static Category reconstruct(
             CategoryId id,
             UserId userId,
             CategoryName name,

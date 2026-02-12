@@ -17,11 +17,13 @@ import com.fyr.finapp.adapters.driven.security.encryption.EncryptionAdapter;
 import com.fyr.finapp.adapters.driven.security.jwt.JwtProvider;
 import com.fyr.finapp.application.usecase.account.*;
 import com.fyr.finapp.application.usecase.auth.AuthenticationService;
-import com.fyr.finapp.application.usecase.category.CategoryService;
+import com.fyr.finapp.application.usecase.category.CreateCategoryService;
+import com.fyr.finapp.application.usecase.category.ListAccountService;
 import com.fyr.finapp.application.usecase.user.UserService;
 import com.fyr.finapp.domain.api.account.*;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import com.fyr.finapp.domain.api.category.CreateCategoryUseCase;
+import com.fyr.finapp.domain.api.category.ListCategoriesUseCase;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
@@ -162,6 +164,14 @@ public class AppConfig {
             ICategoryRepository categoryRepository,
             IAuthenticationRepository authenticationRepository
     ) {
-        return new CategoryService(categoryRepository, authenticationRepository);
+        return new CreateCategoryService(categoryRepository, authenticationRepository);
+    }
+
+    @Bean
+    public ListCategoriesUseCase listCategoriesUseCase(
+            ICategoryRepository categoryRepository,
+            IAuthenticationRepository authenticationRepository
+    ) {
+        return new ListAccountService(categoryRepository, authenticationRepository);
     }
 }

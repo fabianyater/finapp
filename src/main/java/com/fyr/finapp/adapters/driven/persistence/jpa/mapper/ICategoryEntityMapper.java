@@ -2,6 +2,12 @@ package com.fyr.finapp.adapters.driven.persistence.jpa.mapper;
 
 import com.fyr.finapp.adapters.driven.persistence.jpa.entity.CategoryEntity;
 import com.fyr.finapp.domain.model.category.Category;
+import com.fyr.finapp.domain.model.category.vo.CategoryId;
+import com.fyr.finapp.domain.model.category.vo.CategoryName;
+import com.fyr.finapp.domain.model.user.vo.UserId;
+import com.fyr.finapp.domain.shared.vo.Color;
+import com.fyr.finapp.domain.shared.vo.Icon;
+import com.fyr.finapp.domain.shared.vo.TransactionType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -43,5 +49,22 @@ public interface ICategoryEntityMapper {
     @Named("offsetDateTimeToInstant")
     default Instant offsetDateTimeToInstant(OffsetDateTime value) {
         return value == null ? null : value.toInstant();
+    }
+
+    default Category toDomain(CategoryEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return Category.reconstruct(
+                CategoryId.of(entity.getId().toString()),
+                UserId.of(entity.getUser().getId().toString()),
+                CategoryName.of(entity.getName()),
+                TransactionType.valueOf(entity.getType()),
+                Color.of(entity.getColor()),
+                Icon.of(entity.getIcon()),
+                offsetDateTimeToInstant(entity.getCreatedAt()),
+                offsetDateTimeToInstant(entity.getUpdatedAt())
+        );
     }
 }
