@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '4.0.2'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.fyr'
@@ -56,4 +57,106 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// JaCoCo Configuration for Test Coverage
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+jacocoTestReport {
+    dependsOn test
+    
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+    
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                // Exclude generated code
+                '**/mapstruct/**',
+                // Exclude configuration classes
+                '**/config/**',
+                // Exclude DTOs (simple data holders)
+                '**/adapters/driving/http/dto/**',
+                // Exclude JPA entities (infrastructure)
+                '**/adapters/driven/persistence/jpa/entity/**',
+                // Exclude main application class
+                '**/FinappApplication.class'
+            ])
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+    
+    violationRules {
+        rule {
+            element = 'BUNDLE'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.60  // 60% overall coverage minimum
+            }
+        }
+        
+        rule {
+            element = 'PACKAGE'
+            includes = ['com.fyr.finapp.domain.*']
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.70  // 70% domain layer coverage
+            }
+        }
+        
+        rule {
+            element = 'PACKAGE'
+            includes = ['com.fyr.finapp.application.*']
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.65  // 65% application layer coverage
+            }
+        }
+        
+        rule {
+            element = 'PACKAGE'
+            includes = ['com.fyr.finapp.adapters.*']
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.55  // 55% adapter layer coverage
+            }
+        }
+    }
+    
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/mapstruct/**',
+                '**/config/**',
+                '**/adapters/driving/http/dto/**',
+                '**/adapters/driven/persistence/jpa/entity/**',
+                '**/FinappApplication.class'
+            ])
+        }))
+    }
+}
+
+// Make test task generate coverage report automatically
+test {
+    finalizedBy jacocoTestReport
+}
+
+// Optional: Add a task to check coverage thresholds
+tasks.register('checkCoverage') {
+    dependsOn jacocoTestCoverageVerification
+    doLast {
+        println "Coverage verification completed. Check build/reports/jacoco/test/html/index.html for detailed report."
+    }
 }
