@@ -18,12 +18,14 @@ import com.fyr.finapp.adapters.driven.security.jwt.JwtProvider;
 import com.fyr.finapp.application.usecase.account.*;
 import com.fyr.finapp.application.usecase.auth.AuthenticationService;
 import com.fyr.finapp.application.usecase.category.CreateCategoryService;
+import com.fyr.finapp.application.usecase.category.DeleteCategoryService;
 import com.fyr.finapp.application.usecase.category.ListAccountService;
 import com.fyr.finapp.application.usecase.category.UpdateCategoryService;
 import com.fyr.finapp.application.usecase.user.UserService;
 import com.fyr.finapp.domain.api.account.*;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import com.fyr.finapp.domain.api.category.CreateCategoryUseCase;
+import com.fyr.finapp.domain.api.category.DeleteCategoryUseCase;
 import com.fyr.finapp.domain.api.category.ListCategoriesUseCase;
 import com.fyr.finapp.domain.api.category.UpdateCategoryUseCase;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
@@ -183,5 +185,13 @@ public class AppConfig {
             IAuthenticationRepository authenticationRepository
     ) {
         return new UpdateCategoryService(categoryRepository, authenticationRepository);
+    }
+
+    @Bean
+    public DeleteCategoryUseCase deleteCategoryUseCase(
+            ICategoryRepository categoryRepository,
+            IAuthenticationRepository authenticationRepository
+    ) {
+        return new DeleteCategoryService(categoryRepository, authenticationRepository);
     }
 }
