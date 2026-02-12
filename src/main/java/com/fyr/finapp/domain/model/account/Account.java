@@ -3,10 +3,10 @@ package com.fyr.finapp.domain.model.account;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.account.vo.AccountName;
 import com.fyr.finapp.domain.model.account.vo.AccountType;
-import com.fyr.finapp.domain.common.vo.Color;
-import com.fyr.finapp.domain.common.vo.Currency;
-import com.fyr.finapp.domain.common.vo.Icon;
-import com.fyr.finapp.domain.common.vo.Money;
+import com.fyr.finapp.domain.shared.vo.Color;
+import com.fyr.finapp.domain.shared.vo.Currency;
+import com.fyr.finapp.domain.shared.vo.Icon;
+import com.fyr.finapp.domain.shared.vo.Money;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 
 import java.time.Instant;
@@ -111,6 +111,25 @@ public class Account {
                 excludeFromTotal,
                 createdAt,
                 updatedAt);
+    }
+
+    public static Account createDefaultAccountForUser(UserId userId) {
+        Instant now = Instant.now();
+        Currency currency = Currency.of("COP");
+        return new Account(
+                AccountId.generate(),
+                userId,
+                currency,
+                new AccountName("Efectivo"),
+                AccountType.CASH,
+                Money.zero(currency),
+                AccountType.CASH.getDefaultIcon(),
+                AccountType.CASH.getDefaultColor(),
+                true,
+                false,
+                false,
+                now,
+                now);
     }
 
     public void update(
