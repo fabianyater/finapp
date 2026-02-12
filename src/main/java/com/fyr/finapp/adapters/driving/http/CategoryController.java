@@ -5,6 +5,7 @@ import com.fyr.finapp.adapters.driving.http.dto.CreateAccountRequest;
 import com.fyr.finapp.adapters.driving.http.dto.CreateCategoryRequest;
 import com.fyr.finapp.adapters.driving.http.dto.UpdateCategoryRequest;
 import com.fyr.finapp.domain.api.category.CreateCategoryUseCase;
+import com.fyr.finapp.domain.api.category.DeleteCategoryUseCase;
 import com.fyr.finapp.domain.api.category.ListCategoriesUseCase;
 import com.fyr.finapp.domain.api.category.UpdateCategoryUseCase;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,6 +30,7 @@ public class CategoryController {
     private final CreateCategoryUseCase createCategoryUseCase;
     private final ListCategoriesUseCase listCategoriesUseCase;
     private final UpdateCategoryUseCase updateCategoryUseCase;
+    private final DeleteCategoryUseCase deleteCategoryUseCase;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -99,6 +101,23 @@ public class CategoryController {
         );
 
         updateCategoryUseCase.update(command);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(id)
+                .toUri();
+
+        return ResponseEntity
+                .noContent()
+                .location(location)
+                .build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") String id) {
+        deleteCategoryUseCase.delete(new DeleteCategoryUseCase.Command(id));
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
