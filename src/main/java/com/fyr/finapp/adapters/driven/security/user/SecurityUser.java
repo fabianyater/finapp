@@ -16,7 +16,6 @@ public class SecurityUser implements UserDetails {
     private final String email;
     @Getter
     private final String fullName;
-    @Getter
     private final String username;
     private final String passwordHash;
     private final Collection<? extends GrantedAuthority> authorities;
