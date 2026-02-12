@@ -10,7 +10,8 @@ public enum CategoryErrorCode implements DomainErrorCode {
     NAME_TOO_LONG(ErrorCategory.VALIDATION),
     NAME_ALREADY_EXISTS(ErrorCategory.VALIDATION),
     CATEGORY_NOT_FOUND(ErrorCategory.NOT_FOUND),
-    ACCESS_DENIED(ErrorCategory.FORBIDDEN);
+    ACCESS_DENIED(ErrorCategory.FORBIDDEN),
+    CATEGORY_ALREADY_DELETED(ErrorCategory.CONFLICT);
 
     private final ErrorCategory category;
 

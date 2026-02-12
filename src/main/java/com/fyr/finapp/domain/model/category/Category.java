@@ -18,6 +18,7 @@ public class Category {
     private TransactionType type;
     private Color color;
     private Icon icon;
+    private boolean deleted;
     private final Instant createdAt;
 
     private Instant updatedAt;
@@ -30,6 +31,7 @@ public class Category {
             TransactionType type,
             Color color,
             Icon icon,
+            boolean deleted,
             Instant createdAt,
             Instant updatedAt
     ) {
@@ -39,6 +41,7 @@ public class Category {
         this.type = type;
         this.color = color;
         this.icon = icon;
+        this.deleted = deleted;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -57,6 +60,7 @@ public class Category {
                 type,
                 color,
                 icon,
+                false,
                 Instant.now(),
                 Instant.now()
         );
@@ -70,10 +74,11 @@ public class Category {
             TransactionType type,
             Color color,
             Icon icon,
+            boolean isDeleted,
             Instant createdAt,
             Instant updatedAt
     ) {
-        return new Category(id, userId, name, type, color, icon, createdAt, updatedAt);
+        return new Category(id, userId, name, type, color, icon, isDeleted, createdAt, updatedAt);
     }
 
     public void update(
@@ -125,6 +130,18 @@ public class Category {
         return this.userId.equals(userId);
     }
 
+    public boolean markAsDeleted() {
+        if (this.deleted) {
+            return false;
+        }
+
+        this.deleted = true;
+        this.updatedAt = Instant.now();
+
+        return true;
+    }
+
+
     // Getters
     public CategoryId getId() {
         return id;
@@ -148,6 +165,10 @@ public class Category {
 
     public Icon getIcon() {
         return icon;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
     }
 
     public Instant getCreatedAt() {
