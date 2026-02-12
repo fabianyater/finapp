@@ -76,6 +76,19 @@ public class Category {
         return new Category(id, userId, name, type, color, icon, createdAt, updatedAt);
     }
 
+    public void update(
+            CategoryName name,
+            TransactionType type,
+            Color color,
+            Icon icon
+    ) {
+        this.name = name;
+        this.type = type;
+        this.color = color;
+        this.icon = icon;
+        this.updatedAt = Instant.now();
+    }
+
     public static List<Category> createDefaultCategoriesForUser(UserId userId) {
         return List.of(
                 create(userId, CategoryName.of("Salario"), TransactionType.INCOME, Color.of("#10b981"), Icon.of("currency-dollar")),

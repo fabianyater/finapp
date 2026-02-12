@@ -5,6 +5,7 @@ import com.fyr.finapp.adapters.driven.persistence.jpa.entity.UserEntity;
 import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.ICategoryEntityMapper;
 import com.fyr.finapp.adapters.driven.persistence.jpa.repository.CategoryJpaRepository;
 import com.fyr.finapp.domain.model.category.Category;
+import com.fyr.finapp.domain.model.category.vo.CategoryId;
 import com.fyr.finapp.domain.model.category.vo.CategoryName;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.shared.vo.TransactionType;
@@ -59,10 +60,16 @@ public class CategoryAdapter implements ICategoryRepository {
     }
 
     @Override
-    public List<Category> findAllByUserId(String userId) {
-        return repo.findAllByUser_Id((UUID.fromString(userId))).stream()
+    public List<Category> findAllByUserId(UserId userId) {
+        return repo.findAllByUser_Id(userId.value()).stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<Category> findById(CategoryId categoryId) {
+        return repo.findById(categoryId.value())
+                .map(mapper::toDomain);
     }
 
     @Override

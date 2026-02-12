@@ -8,7 +8,9 @@ public enum CategoryErrorCode implements DomainErrorCode {
     ID_INVALID(ErrorCategory.VALIDATION),
     NAME_REQUIRED(ErrorCategory.VALIDATION),
     NAME_TOO_LONG(ErrorCategory.VALIDATION),
-    NAME_ALREADY_EXISTS(ErrorCategory.VALIDATION);
+    NAME_ALREADY_EXISTS(ErrorCategory.VALIDATION),
+    CATEGORY_NOT_FOUND(ErrorCategory.NOT_FOUND),
+    ACCESS_DENIED(ErrorCategory.FORBIDDEN);
 
     private final ErrorCategory category;
 

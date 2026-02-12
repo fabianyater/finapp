@@ -1,6 +1,7 @@
 package com.fyr.finapp.application.usecase.category;
 
 import com.fyr.finapp.domain.api.category.ListCategoriesUseCase;
+import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 
@@ -19,7 +20,7 @@ public class ListAccountService implements ListCategoriesUseCase {
     @Override
     public List<CategoryResult> execute() {
         var userId = authenticationRepository.getCurrentUserId().value().toString();
-        return categoryRepository.findAllByUserId(userId)
+        return categoryRepository.findAllByUserId(UserId.of(userId))
                 .stream()
                 .map(category -> new CategoryResult(
                         category.getId().value().toString(),

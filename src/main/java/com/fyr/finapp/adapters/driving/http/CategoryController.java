@@ -3,8 +3,10 @@ package com.fyr.finapp.adapters.driving.http;
 import com.fyr.finapp.adapters.driving.http.dto.CategoryResponse;
 import com.fyr.finapp.adapters.driving.http.dto.CreateAccountRequest;
 import com.fyr.finapp.adapters.driving.http.dto.CreateCategoryRequest;
+import com.fyr.finapp.adapters.driving.http.dto.UpdateCategoryRequest;
 import com.fyr.finapp.domain.api.category.CreateCategoryUseCase;
 import com.fyr.finapp.domain.api.category.ListCategoriesUseCase;
+import com.fyr.finapp.domain.api.category.UpdateCategoryUseCase;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,6 +28,7 @@ import java.util.List;
 public class CategoryController {
     private final CreateCategoryUseCase createCategoryUseCase;
     private final ListCategoriesUseCase listCategoriesUseCase;
+    private final UpdateCategoryUseCase updateCategoryUseCase;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -73,5 +76,39 @@ public class CategoryController {
                 .toList();
 
         return ResponseEntity.ok(categories);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(
+            @PathVariable("id") String id,
+            @Valid
+            @RequestBody
+            @Parameter(
+                    description = "Request body for updating an existing category",
+                    required = true,
+                    schema = @Schema(implementation = CreateAccountRequest.class)
+            )
+            UpdateCategoryRequest request) {
+        var command = new UpdateCategoryUseCase.Command(
+                id,
+                request.name(),
+                request.type(),
+                request.color(),
+                request.icon()
+        );
+
+        updateCategoryUseCase.update(command);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(id)
+                .toUri();
+
+        return ResponseEntity
+                .noContent()
+                .location(location)
+                .build();
     }
 }
