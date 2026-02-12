@@ -1,4 +1,4 @@
-package com.fyr.finapp.domain.common.exception;
+package com.fyr.finapp.domain.shared.exception;
 
 import com.fyr.finapp.domain.exception.DomainErrorCode;
 import com.fyr.finapp.domain.exception.ErrorCategory;

@@ -1,9 +1,9 @@
-package com.fyr.finapp.domain.common;
+package com.fyr.finapp.domain.shared;
 
 import java.time.Instant;
 import java.util.Set;
 
-import static com.fyr.finapp.domain.common.constraints.CommonConstraints.*;
+import static com.fyr.finapp.domain.shared.constraints.CommonConstraints.*;
 
 //TODO: Ajustar los mensajes de error, las constantes, etc...
 public record AccountQuery(Pagination pagination,

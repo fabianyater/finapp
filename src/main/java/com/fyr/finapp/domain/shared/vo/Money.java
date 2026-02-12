@@ -1,7 +1,7 @@
-package com.fyr.finapp.domain.common.vo;
+package com.fyr.finapp.domain.shared.vo;
 
 import com.fyr.finapp.domain.exception.ValidationException;
-import com.fyr.finapp.domain.common.exception.SharedErrorCode;
+import com.fyr.finapp.domain.shared.exception.SharedErrorCode;
 
 import java.math.BigDecimal;
 
