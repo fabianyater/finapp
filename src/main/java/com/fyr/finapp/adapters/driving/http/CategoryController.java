@@ -5,8 +5,11 @@ import com.fyr.finapp.adapters.driving.http.dto.CreateAccountRequest;
 import com.fyr.finapp.adapters.driving.http.dto.CreateCategoryRequest;
 import com.fyr.finapp.adapters.driving.http.dto.UpdateCategoryRequest;
 import com.fyr.finapp.domain.api.category.*;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -129,20 +132,22 @@ public class CategoryController {
                 .build();
     }
 
+    @Operation(
+            summary = "Restore a deleted category",
+            description = "Restores a previously deleted category, making it active again"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Category restored successfully"),
+            @ApiResponse(responseCode = "404", description = "Category not found"),
+            @ApiResponse(responseCode = "409", description = "Category is not deleted")
+    })
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/{id}/restore")
+    @PostMapping("/{id}/restore")
     public ResponseEntity<Void> restore(@PathVariable("id") String id) {
         restoreCategoryUseCase.restore(new RestoreCategoryUseCase.Command(id));
 
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(id)
-                .toUri();
-
         return ResponseEntity
                 .noContent()
-                .location(location)
                 .build();
     }
 }
