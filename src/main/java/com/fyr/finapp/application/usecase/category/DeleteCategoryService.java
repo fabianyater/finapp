@@ -9,6 +9,7 @@ import com.fyr.finapp.domain.model.category.vo.CategoryId;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.category.ICategoryRepository;
+import jakarta.transaction.Transactional;
 
 public class DeleteCategoryService implements DeleteCategoryUseCase {
     private final ICategoryRepository categoryRepository;
@@ -21,6 +22,7 @@ public class DeleteCategoryService implements DeleteCategoryUseCase {
     }
 
     @Override
+    @Transactional
     public void delete(Command command) {
         var userId = authenticationRepository.getCurrentUserId();
         var categoryId = CategoryId.of(command.categoryId());

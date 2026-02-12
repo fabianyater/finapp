@@ -14,6 +14,7 @@ import com.fyr.finapp.domain.shared.vo.Icon;
 import com.fyr.finapp.domain.shared.vo.TransactionType;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.category.ICategoryRepository;
+import jakarta.transaction.Transactional;
 
 public class UpdateCategoryService implements UpdateCategoryUseCase {
     private final ICategoryRepository categoryRepository;
@@ -26,6 +27,7 @@ public class UpdateCategoryService implements UpdateCategoryUseCase {
     }
 
     @Override
+    @Transactional
     public void update(Command command) {
         var categoryId = CategoryId.of(command.categoryId());
         var userId = authenticationRepository.getCurrentUserId();

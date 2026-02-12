@@ -9,6 +9,7 @@ import com.fyr.finapp.domain.model.category.vo.CategoryId;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.category.ICategoryRepository;
+import jakarta.transaction.Transactional;
 
 public class RestoreCategoryService implements RestoreCategoryUseCase {
     private final IAuthenticationRepository authenticationRepository;
@@ -21,6 +22,7 @@ public class RestoreCategoryService implements RestoreCategoryUseCase {
     }
 
     @Override
+    @Transactional
     public void restore(Command command) {
         var userId = authenticationRepository.getCurrentUserId();
         var categoryId = CategoryId.of(command.categoryId());
