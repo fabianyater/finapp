@@ -4,10 +4,7 @@ import com.fyr.finapp.adapters.driving.http.dto.CategoryResponse;
 import com.fyr.finapp.adapters.driving.http.dto.CreateAccountRequest;
 import com.fyr.finapp.adapters.driving.http.dto.CreateCategoryRequest;
 import com.fyr.finapp.adapters.driving.http.dto.UpdateCategoryRequest;
-import com.fyr.finapp.domain.api.category.CreateCategoryUseCase;
-import com.fyr.finapp.domain.api.category.DeleteCategoryUseCase;
-import com.fyr.finapp.domain.api.category.ListCategoriesUseCase;
-import com.fyr.finapp.domain.api.category.UpdateCategoryUseCase;
+import com.fyr.finapp.domain.api.category.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +28,7 @@ public class CategoryController {
     private final ListCategoriesUseCase listCategoriesUseCase;
     private final UpdateCategoryUseCase updateCategoryUseCase;
     private final DeleteCategoryUseCase deleteCategoryUseCase;
+    private final RestoreCategoryUseCase restoreCategoryUseCase;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -118,6 +116,23 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") String id) {
         deleteCategoryUseCase.delete(new DeleteCategoryUseCase.Command(id));
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(id)
+                .toUri();
+
+        return ResponseEntity
+                .noContent()
+                .location(location)
+                .build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}/restore")
+    public ResponseEntity<Void> restore(@PathVariable("id") String id) {
+        restoreCategoryUseCase.restore(new RestoreCategoryUseCase.Command(id));
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()

@@ -141,6 +141,16 @@ public class Category {
         return true;
     }
 
+    public boolean restore() {
+        if (!this.deleted) {
+            return false;
+        }
+
+        this.deleted = false;
+        this.updatedAt = Instant.now();
+        return true;
+    }
+
 
     // Getters
     public CategoryId getId() {
