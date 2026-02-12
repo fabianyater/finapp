@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-import static com.fyr.finapp.domain.common.constraints.CommonConstraints.*;
+import static com.fyr.finapp.domain.shared.constraints.CommonConstraints.*;
 
 //TODO: Ajustar los mensajes de error, las constantes, etc...
 public interface ListAccountsUseCase {

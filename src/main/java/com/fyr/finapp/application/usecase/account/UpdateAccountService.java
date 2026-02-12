@@ -1,9 +1,9 @@
 package com.fyr.finapp.application.usecase.account;
 
 import com.fyr.finapp.domain.api.account.UpdateAccountUseCase;
-import com.fyr.finapp.domain.common.vo.Color;
-import com.fyr.finapp.domain.common.vo.Icon;
-import com.fyr.finapp.domain.common.vo.Money;
+import com.fyr.finapp.domain.shared.vo.Color;
+import com.fyr.finapp.domain.shared.vo.Icon;
+import com.fyr.finapp.domain.shared.vo.Money;
 import com.fyr.finapp.domain.model.account.Account;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.account.vo.AccountName;

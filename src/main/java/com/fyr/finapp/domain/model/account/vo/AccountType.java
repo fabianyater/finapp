@@ -2,8 +2,8 @@ package com.fyr.finapp.domain.model.account.vo;
 
 import com.fyr.finapp.domain.exception.ValidationException;
 import com.fyr.finapp.domain.model.account.exception.AccountErrorCode;
-import com.fyr.finapp.domain.common.vo.Color;
-import com.fyr.finapp.domain.common.vo.Icon;
+import com.fyr.finapp.domain.shared.vo.Color;
+import com.fyr.finapp.domain.shared.vo.Icon;
 
 public enum AccountType {
     CASH("Efectivo", Color.of("#f4b400"), Icon.of("money-bill")),
