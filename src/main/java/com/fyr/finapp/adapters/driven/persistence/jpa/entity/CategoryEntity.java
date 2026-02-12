@@ -42,6 +42,11 @@ public class CategoryEntity {
     private String icon;
 
     @NotNull
+    @ColumnDefault("false")
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted;
+
+    @NotNull
     @ColumnDefault("now()")
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;

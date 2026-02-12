@@ -25,6 +25,7 @@ public interface ICategoryEntityMapper {
     @Mapping(target = "type", source = "type")
     @Mapping(target = "color", source = "color.value")
     @Mapping(target = "icon", source = "icon.name")
+    @Mapping(target = "isDeleted", source = "deleted")
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
     CategoryEntity toEntity(Category category);
@@ -37,6 +38,7 @@ public interface ICategoryEntityMapper {
     @Mapping(target = "type", source = "type")
     @Mapping(target = "color", source = "color.value")
     @Mapping(target = "icon", source = "icon.name")
+    @Mapping(target = "isDeleted", source = "deleted")
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
     void updateEntityFromDomain(Category domain, @MappingTarget CategoryEntity entity);
@@ -63,6 +65,7 @@ public interface ICategoryEntityMapper {
                 TransactionType.valueOf(entity.getType()),
                 Color.of(entity.getColor()),
                 Icon.of(entity.getIcon()),
+                entity.getIsDeleted(),
                 offsetDateTimeToInstant(entity.getCreatedAt()),
                 offsetDateTimeToInstant(entity.getUpdatedAt())
         );
