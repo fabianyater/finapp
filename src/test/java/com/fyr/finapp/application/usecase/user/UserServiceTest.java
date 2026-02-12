@@ -22,6 +22,8 @@ class UserServiceTest {
     void create_shouldSaveUserAndReturnResult_whenDataIsValid() {
         var userRepository = mock(IUserRepository.class);
         var userPreferenceRepository = mock(IUserPreferenceRepository.class);
+        var categoryRepository = mock(com.fyr.finapp.domain.spi.category.ICategoryRepository.class);
+        var accountRepository = mock(com.fyr.finapp.domain.spi.account.IAccountRepository.class);
         var encryptionRepository = mock(IEncryptionRepository.class);
 
         var plainPassword = "strongPassword123";
@@ -38,7 +40,7 @@ class UserServiceTest {
         });
 
         var createUserCommand = new CreateUserUseCase.CreateUserCommand("John", "Doe", email, plainPassword);
-        var userService = new UserService(userRepository, userPreferenceRepository, encryptionRepository);
+        var userService = new UserService(userRepository, userPreferenceRepository, categoryRepository, accountRepository, encryptionRepository);
 
         var result = userService.create(createUserCommand);
 
@@ -59,13 +61,15 @@ class UserServiceTest {
     void create_shouldThrowEmailAlreadyInUseException_whenEmailExists() {
         var userRepository = mock(IUserRepository.class);
         var userPreferenceRepository = mock(IUserPreferenceRepository.class);
+        var categoryRepository = mock(com.fyr.finapp.domain.spi.category.ICategoryRepository.class);
+        var accountRepository = mock(com.fyr.finapp.domain.spi.account.IAccountRepository.class);
         var encryptionRepository = mock(IEncryptionRepository.class);
 
         var email = "test@example.com";
         when(userRepository.existsByEmail(email)).thenReturn(true);
 
         var createUserCommand = new CreateUserUseCase.CreateUserCommand("John", "Doe", email, "StrongPassword123");
-        var userService = new UserService(userRepository, userPreferenceRepository, encryptionRepository);
+        var userService = new UserService(userRepository, userPreferenceRepository, categoryRepository, accountRepository, encryptionRepository);
 
         assertThatThrownBy(() -> userService.create(createUserCommand))
                 .isInstanceOf(ConflictException.class)
@@ -80,6 +84,8 @@ class UserServiceTest {
     void create_shouldSaveUserWithCorrectUsername_whenEmailContainsSpecialCharacters() {
         var userRepository = mock(IUserRepository.class);
         var userPreferenceRepository = mock(IUserPreferenceRepository.class);
+        var categoryRepository = mock(com.fyr.finapp.domain.spi.category.ICategoryRepository.class);
+        var accountRepository = mock(com.fyr.finapp.domain.spi.account.IAccountRepository.class);
         var encryptionRepository = mock(IEncryptionRepository.class);
 
         var plainPassword = "anotherStrongPassword";
@@ -96,7 +102,7 @@ class UserServiceTest {
         });
 
         var createUserCommand = new CreateUserUseCase.CreateUserCommand("Jane", "Smith", email, plainPassword);
-        var userService = new UserService(userRepository, userPreferenceRepository, encryptionRepository);
+        var userService = new UserService(userRepository, userPreferenceRepository, categoryRepository, accountRepository, encryptionRepository);
 
         var result = userService.create(createUserCommand);
 
