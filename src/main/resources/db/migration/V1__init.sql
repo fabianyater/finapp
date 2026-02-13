@@ -149,7 +149,7 @@ create table if not exists transactions
     account_id  uuid        not null,
     category_id uuid        not null,
 
-    occurred_on date        not null,
+    occurred_on timestamptz not null,
     description text        not null,
     note        text        null,
 
