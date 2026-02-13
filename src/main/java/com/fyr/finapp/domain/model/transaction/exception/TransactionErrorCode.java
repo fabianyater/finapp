@@ -11,7 +11,8 @@ public enum TransactionErrorCode implements DomainErrorCode {
     ACCOUNT_NOT_FOUND(ErrorCategory.NOT_FOUND),
     ACCESS_DENIED(ErrorCategory.FORBIDDEN),
     TRANSACTION_NOT_FOUND(ErrorCategory.NOT_FOUND),
-    TRANSACTION_ALREADY_ARCHIVED(ErrorCategory.VALIDATION);
+    TRANSACTION_ALREADY_ARCHIVED(ErrorCategory.VALIDATION),
+    DESCRIPTION_REQUIRED(ErrorCategory.VALIDATION);
 
     private final ErrorCategory category;
 
