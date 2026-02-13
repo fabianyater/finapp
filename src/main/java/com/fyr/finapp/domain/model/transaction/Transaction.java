@@ -1,7 +1,9 @@
 package com.fyr.finapp.domain.model.transaction;
 
+import com.fyr.finapp.domain.exception.ValidationException;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.category.vo.CategoryId;
+import com.fyr.finapp.domain.model.transaction.exception.TransactionErrorCode;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.shared.vo.Currency;
 import com.fyr.finapp.domain.shared.vo.Money;
@@ -55,7 +57,6 @@ public class Transaction {
     public static Transaction create(
             TransactionType type,
             Money amount,
-            Currency currency,
             String description,
             String note,
             Instant occurredOn,
@@ -64,11 +65,26 @@ public class Transaction {
             AccountId accountId
     ) {
         Instant now = Instant.now();
+
+        if (amount.isNegative() || amount.isZero()) {
+            throw new ValidationException(
+                    "Amount cannot be negative",
+                    TransactionErrorCode.AMOUNT_NEGATIVE
+            );
+        }
+
+        if (description == null || description.isBlank()) {
+            throw new ValidationException(
+                    "Description cannot be empty",
+                    TransactionErrorCode.DESCRIPTION_REQUIRED
+            );
+        }
+
         return new Transaction(
                 TransactionId.generate(),
                 type,
                 amount,
-                currency,
+                amount.currency(),
                 description,
                 note,
                 occurredOn,
