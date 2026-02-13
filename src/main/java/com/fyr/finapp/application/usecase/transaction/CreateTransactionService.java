@@ -50,15 +50,25 @@ public class CreateTransactionService implements CreateTransactionUseCase {
         var categoryId = CategoryId.of(command.categoryId());
         var type = TransactionType.fromString(command.type());
 
-        var existingAccount = accountValidator.getAccountAndValidateOwnership(accountId, userId);
-        validateAccountNotArchived(existingAccount);
+        var account = accountValidator.getAccountAndValidateOwnership(accountId, userId);
+        validateAccountNotArchived(account);
 
         var category = getCategoryAndValidateOwnership(categoryId, userId);
         validateCategoryType(type, category);
 
+        var amount = Money.of(command.amount(), account.getCurrency().code());
+
+        if (type == TransactionType.EXPENSE &&
+                account.getCurrentBalance().subtract(amount).isNegative()) {
+            throw new ValidationException(
+                    "Insufficient funds",
+                    AccountErrorCode.INSUFFICIENT_FUNDS
+            );
+        }
+
         var transaction = Transaction.create(
                 type,
-                Money.of(command.amount(), existingAccount.getCurrency().code()),
+                amount,
                 command.description(),
                 command.note(),
                 Instant.parse(command.occurredOn()),
@@ -67,7 +77,10 @@ public class CreateTransactionService implements CreateTransactionUseCase {
                 accountId
         );
 
+        account.applyTransaction(type, amount);
+
         transactionRepository.save(transaction);
+        accountRepository.save(account);
 
         return new Result(transaction.getId().value().toString());
     }
