@@ -11,7 +11,8 @@ public enum CategoryErrorCode implements DomainErrorCode {
     NAME_ALREADY_EXISTS(ErrorCategory.VALIDATION),
     CATEGORY_NOT_FOUND(ErrorCategory.NOT_FOUND),
     ACCESS_DENIED(ErrorCategory.FORBIDDEN),
-    CATEGORY_ALREADY_DELETED(ErrorCategory.CONFLICT);
+    CATEGORY_ALREADY_DELETED(ErrorCategory.CONFLICT),
+    CATEGORY_TYPE_MISMATCH(ErrorCategory.VALIDATION);
 
     private final ErrorCategory category;
 
