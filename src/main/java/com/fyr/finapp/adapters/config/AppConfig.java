@@ -1,32 +1,26 @@
 package com.fyr.finapp.adapters.config;
 
-import com.fyr.finapp.adapters.driven.persistence.jpa.adapter.AccountAdapter;
-import com.fyr.finapp.adapters.driven.persistence.jpa.adapter.CategoryAdapter;
-import com.fyr.finapp.adapters.driven.persistence.jpa.adapter.UserAdapter;
-import com.fyr.finapp.adapters.driven.persistence.jpa.adapter.UserPreferenceAdapter;
-import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.IAccountMapper;
-import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.ICategoryEntityMapper;
-import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.IUserEntityMapper;
-import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.IUserPreferenceEntityMapper;
-import com.fyr.finapp.adapters.driven.persistence.jpa.repository.AccountJpaRepository;
-import com.fyr.finapp.adapters.driven.persistence.jpa.repository.CategoryJpaRepository;
-import com.fyr.finapp.adapters.driven.persistence.jpa.repository.UserJpaRepository;
-import com.fyr.finapp.adapters.driven.persistence.jpa.repository.UserPreferenceJpaRepository;
+import com.fyr.finapp.adapters.driven.persistence.jpa.adapter.*;
+import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.*;
+import com.fyr.finapp.adapters.driven.persistence.jpa.repository.*;
 import com.fyr.finapp.adapters.driven.security.auth.AuthenticationAdapter;
 import com.fyr.finapp.adapters.driven.security.encryption.EncryptionAdapter;
 import com.fyr.finapp.adapters.driven.security.jwt.JwtProvider;
 import com.fyr.finapp.application.usecase.account.*;
 import com.fyr.finapp.application.usecase.auth.AuthenticationService;
 import com.fyr.finapp.application.usecase.category.*;
+import com.fyr.finapp.application.usecase.transaction.CreateTransactionService;
 import com.fyr.finapp.application.usecase.user.UserService;
 import com.fyr.finapp.domain.api.account.*;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import com.fyr.finapp.domain.api.category.*;
+import com.fyr.finapp.domain.api.transaction.CreateTransactionUseCase;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.auth.IEncryptionRepository;
 import com.fyr.finapp.domain.spi.category.ICategoryRepository;
+import com.fyr.finapp.domain.spi.transaction.ITransactionRepository;
 import com.fyr.finapp.domain.spi.user.IUserPreferenceRepository;
 import com.fyr.finapp.domain.spi.user.IUserRepository;
 import jakarta.persistence.EntityManager;
@@ -91,6 +85,15 @@ public class AppConfig {
     @Bean
     public ICategoryRepository categoryRepositoryPort(CategoryJpaRepository repo, EntityManager em, ICategoryEntityMapper categoryMapper) {
         return new CategoryAdapter(repo, em, categoryMapper);
+    }
+
+    @Bean
+    public ITransactionRepository transactionRepository(
+            ITransactionMapper transactionMapper,
+            TransactionJpaRepository transactionJpaRepository,
+            EntityManager em
+    ) {
+        return new TransactionAdapter(transactionMapper, transactionJpaRepository, em);
     }
 
     // ----- Use Cases (Application layer) -----
@@ -193,7 +196,24 @@ public class AppConfig {
     public RestoreCategoryUseCase restoreCategoryUseCase(
             IAuthenticationRepository authenticationRepository,
             ICategoryRepository categoryRepository
-            ) {
+    ) {
         return new RestoreCategoryService(authenticationRepository, categoryRepository);
+    }
+
+    @Bean
+    public CreateTransactionUseCase createTransactionUseCase(
+            IAuthenticationRepository authenticationRepository,
+            ITransactionRepository transactionRepository,
+            IAccountRepository accountRepository,
+            ICategoryRepository categoryRepository,
+            AccountValidator accountValidator
+    ) {
+        return new CreateTransactionService(
+                authenticationRepository,
+                transactionRepository,
+                accountRepository,
+                categoryRepository,
+                accountValidator
+        );
     }
 }

@@ -15,29 +15,19 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "accounts")
-public class AccountEntity {
+@Table(name = "transactions")
+public class TransactionEntity {
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
-
-    @NotNull
-    @Column(name = "name", nullable = false, length = Integer.MAX_VALUE)
-    private String name;
 
     @NotNull
     @Column(name = "type", nullable = false, length = Integer.MAX_VALUE)
     private String type;
 
     @NotNull
-    @ColumnDefault("0")
-    @Column(name = "initial_balance", nullable = false)
-    private Long initialBalance;
-
-    @NotNull
-    @ColumnDefault("0")
-    @Column(name = "current_balance", nullable = false)
-    private Long currentBalance;
+    @Column(name = "amount", nullable = false)
+    private Long amount;
 
     @Size(max = 3)
     @NotNull
@@ -45,31 +35,17 @@ public class AccountEntity {
     @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
-    @NotNull
-    @ColumnDefault("'wallet'")
-    @Column(name = "icon", nullable = false, length = Integer.MAX_VALUE)
-    private String icon;
-
-    @Size(max = 7)
-    @NotNull
-    @ColumnDefault("'#004ab3'")
-    @Column(name = "color", nullable = false, length = 7)
-    private String color;
 
     @NotNull
-    @ColumnDefault("false")
-    @Column(name = "is_default", nullable = false)
-    private Boolean isDefault;
+    @Column(name = "occurred_on", nullable = false)
+    private OffsetDateTime occurredOn;
 
     @NotNull
-    @ColumnDefault("false")
-    @Column(name = "is_archived", nullable = false)
-    private Boolean isArchived;
+    @Column(name = "description", nullable = false, length = Integer.MAX_VALUE)
+    private String description;
 
-    @NotNull
-    @ColumnDefault("false")
-    @Column(name = "exclude_from_total", nullable = false)
-    private Boolean excludeFromTotal;
+    @Column(name = "note", length = Integer.MAX_VALUE)
+    private String note;
 
     @NotNull
     @ColumnDefault("now()")
@@ -84,6 +60,16 @@ public class AccountEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "account_id", nullable = false)
+    private AccountEntity accounts;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private CategoryEntity categories;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 

@@ -66,4 +66,5 @@ public class UserPreferenceEntity {
     public void preUpdate() {
         updatedAt = OffsetDateTime.now();
     }
+
 }
