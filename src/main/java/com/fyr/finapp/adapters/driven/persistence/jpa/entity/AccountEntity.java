@@ -34,6 +34,11 @@ public class AccountEntity {
     @Column(name = "initial_balance", nullable = false)
     private Long initialBalance;
 
+    @NotNull
+    @ColumnDefault("0")
+    @Column(name = "current_balance", nullable = false)
+    private Long currentBalance;
+
     @Size(max = 3)
     @NotNull
     @ColumnDefault("'COP'")
