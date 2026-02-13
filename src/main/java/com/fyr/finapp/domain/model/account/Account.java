@@ -1,13 +1,12 @@
 package com.fyr.finapp.domain.model.account;
 
+import com.fyr.finapp.domain.exception.ValidationException;
+import com.fyr.finapp.domain.model.account.exception.AccountErrorCode;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.account.vo.AccountName;
 import com.fyr.finapp.domain.model.account.vo.AccountType;
-import com.fyr.finapp.domain.shared.vo.Color;
-import com.fyr.finapp.domain.shared.vo.Currency;
-import com.fyr.finapp.domain.shared.vo.Icon;
-import com.fyr.finapp.domain.shared.vo.Money;
 import com.fyr.finapp.domain.model.user.vo.UserId;
+import com.fyr.finapp.domain.shared.vo.*;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -152,6 +151,27 @@ public class Account {
         this.icon = newIcon;
         this.color = newColor;
         this.updatedAt = Instant.now();
+    }
+
+    public void applyTransaction(TransactionType type, Money amount) {
+        validateCurrency(amount);
+
+        if (type == TransactionType.EXPENSE) {
+            this.currentBalance = this.currentBalance.subtract(amount);
+        } else {
+            this.currentBalance = this.currentBalance.add(amount);
+        }
+
+        this.updatedAt = Instant.now();
+    }
+
+    public void validateCurrency(Money amount) {
+        if (!amount.currency().equals(this.currency)) {
+            throw new ValidationException(
+                    "Transaction currency must match account currency",
+                    AccountErrorCode.CURRENCY_MISMATCH
+            );
+        }
     }
 
     public void changeType(AccountType newType) {
