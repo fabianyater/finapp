@@ -25,6 +25,7 @@ public interface IAccountMapper {
     @Mapping(target = "name", source = "name.value")
     @Mapping(target = "type", source = "type", qualifiedByName = "accountTypeToString")
     @Mapping(target = "initialBalance", source = "initialBalance.amount")
+    @Mapping(target = "currentBalance", source = "currentBalance.amount")
     @Mapping(target = "currency", source = "currency.code")
     @Mapping(target = "icon", source = "icon.name")
     @Mapping(target = "color", source = "color.value")
@@ -40,6 +41,7 @@ public interface IAccountMapper {
     @Mapping(target = "name", source = "name.value")
     @Mapping(target = "type", source = "type", qualifiedByName = "accountTypeToString")
     @Mapping(target = "initialBalance", source = "initialBalance.amount")
+    @Mapping(target = "currentBalance", source = "currentBalance.amount")
     @Mapping(target = "currency", source = "currency.code")
     @Mapping(target = "icon", source = "icon.name")
     @Mapping(target = "color", source = "color.value")
@@ -62,6 +64,7 @@ public interface IAccountMapper {
                 AccountName.of(entity.getName()),
                 AccountType.fromString(entity.getType()),
                 Money.of(entity.getInitialBalance(), entity.getCurrency()),
+                Money.of(entity.getCurrentBalance(), entity.getCurrency()),
                 Icon.of(entity.getIcon()),
                 Color.of(entity.getColor()),
                 entity.getIsDefault(),

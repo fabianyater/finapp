@@ -21,6 +21,7 @@ public class Account {
     private AccountName name;
     private AccountType type;
     private Money initialBalance;
+    private Money currentBalance;
     private Icon icon;
     private Color color;
 
@@ -37,6 +38,7 @@ public class Account {
             AccountName name,
             AccountType type,
             Money initialBalance,
+            Money currentBalance,
             Icon icon,
             Color color,
             boolean isDefault,
@@ -51,6 +53,7 @@ public class Account {
         this.name = name;
         this.type = type;
         this.initialBalance = initialBalance;
+        this.currentBalance = currentBalance;
         this.icon = icon;
         this.color = color;
         this.defaultAccount = isDefault;
@@ -74,6 +77,7 @@ public class Account {
                 name,
                 type,
                 initialBalance,
+                initialBalance,
                 type.getDefaultIcon(),
                 type.getDefaultColor(),
                 false,
@@ -89,6 +93,7 @@ public class Account {
             AccountName name,
             AccountType type,
             Money initialBalance,
+            Money currentBalance,
             Icon icon,
             Color color,
             boolean isDefault,
@@ -104,6 +109,7 @@ public class Account {
                 name,
                 type,
                 initialBalance,
+                currentBalance,
                 icon,
                 color,
                 isDefault,
@@ -122,6 +128,7 @@ public class Account {
                 currency,
                 new AccountName("Efectivo"),
                 AccountType.CASH,
+                Money.zero(currency),
                 Money.zero(currency),
                 AccountType.CASH.getDefaultIcon(),
                 AccountType.CASH.getDefaultColor(),
@@ -248,6 +255,10 @@ public class Account {
 
     public UserId getUserId() {
         return userId;
+    }
+
+    public Money getCurrentBalance() {
+        return currentBalance;
     }
 
     @Override
