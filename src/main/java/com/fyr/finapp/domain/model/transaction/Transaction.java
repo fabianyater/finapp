@@ -128,16 +128,29 @@ public class Transaction {
     public void update(
             TransactionType type,
             Money amount,
-            Currency currency,
             String description,
             String note,
             Instant occurredOn,
             CategoryId categoryId,
             AccountId accountId
     ) {
+        if (amount.isNegative() || amount.isZero()) {
+            throw new ValidationException(
+                    "Amount cannot be negative",
+                    TransactionErrorCode.AMOUNT_NEGATIVE
+            );
+        }
+
+        if (description == null || description.isBlank()) {
+            throw new ValidationException(
+                    "Description cannot be empty",
+                    TransactionErrorCode.DESCRIPTION_REQUIRED
+            );
+        }
+
         this.type = type;
         this.amount = amount;
-        this.currency = currency;
+        this.currency = amount.currency();
         this.description = description;
         this.note = note;
         this.occurredOn = occurredOn;

@@ -50,6 +50,10 @@ public record Money(Long amount, Currency currency) {
         return amount == 0;
     }
 
+    public boolean isPositiveOrZero() {
+        return amount >= 0;
+    }
+
     public BigDecimal toBigDecimal() {
         return BigDecimal.valueOf(amount).movePointLeft(2);
     }
@@ -68,4 +72,5 @@ public record Money(Long amount, Currency currency) {
             );
         }
     }
+
 }

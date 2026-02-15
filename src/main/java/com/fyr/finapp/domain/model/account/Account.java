@@ -156,13 +156,121 @@ public class Account {
     public void applyTransaction(TransactionType type, Money amount) {
         validateCurrency(amount);
 
-        if (type == TransactionType.EXPENSE) {
-            this.currentBalance = this.currentBalance.subtract(amount);
-        } else {
-            this.currentBalance = this.currentBalance.add(amount);
-        }
+        this.currentBalance = switch (type) {
+            case INCOME -> this.currentBalance.add(amount);
+            case EXPENSE -> this.currentBalance.subtract(amount);
+        };
+    }
 
-        this.updatedAt = Instant.now();
+    public void reverseTransaction(TransactionType type, Money amount) {
+        validateCurrency(amount);
+
+        this.currentBalance = switch (type) {
+            case INCOME -> this.currentBalance.subtract(amount);
+            case EXPENSE -> this.currentBalance.add(amount);
+        };
+    }
+
+    /**
+     * Simula cómo quedaría el balance después de revertir una transacción,
+     * SIN mutar el estado de la cuenta.
+     *
+     * @param type   Tipo de la transacción original
+     * @param amount Monto de la transacción original
+     * @return Balance proyectado después de la reversión
+     */
+    public Money simulateReversal(TransactionType type, Money amount) {
+        validateCurrency(amount);
+
+        return switch (type) {
+            case INCOME -> this.currentBalance.subtract(amount);
+            case EXPENSE -> this.currentBalance.add(amount);
+        };
+    }
+
+    /**
+     * Simula cómo quedaría el balance después de aplicar una transacción,
+     * SIN mutar el estado de la cuenta.
+     *
+     * @param type   Tipo de la nueva transacción
+     * @param amount Monto de la nueva transacción
+     * @return Balance proyectado después de aplicar la transacción
+     */
+    public Money simulateApplication(TransactionType type, Money amount) {
+        validateCurrency(amount);
+
+        return switch (type) {
+            case INCOME -> this.currentBalance.add(amount);
+            case EXPENSE -> this.currentBalance.subtract(amount);
+        };
+    }
+
+    /**
+     * Simula el balance completo después de revertir una transacción antigua
+     * y aplicar una nueva transacción, SIN mutar el estado.
+     * Útil para validar fondos suficientes antes de actualizar transacciones.
+     *
+     * @param oldType   Tipo de la transacción original
+     * @param oldAmount Monto de la transacción original
+     * @param newType   Tipo de la nueva transacción
+     * @param newAmount Monto de la nueva transacción
+     * @return Balance proyectado final
+     */
+    public Money projectedBalanceAfterUpdate(
+            TransactionType oldType,
+            Money oldAmount,
+            TransactionType newType,
+            Money newAmount) {
+
+        validateCurrency(oldAmount);
+        validateCurrency(newAmount);
+
+        Money balanceAfterReversal = switch (oldType) {
+            case INCOME -> this.currentBalance.subtract(oldAmount);
+            case EXPENSE -> this.currentBalance.add(oldAmount);
+        };
+
+        return switch (newType) {
+            case INCOME -> balanceAfterReversal.add(newAmount);
+            case EXPENSE -> balanceAfterReversal.subtract(newAmount);
+        };
+    }
+
+    /**
+     * Verifica si hay fondos suficientes para aplicar un gasto,
+     * considerando el estado actual de la cuenta.
+     *
+     * @param amount Monto del gasto a validar
+     * @return true si hay fondos suficientes, false en caso contrario
+     */
+    public boolean hasSufficientFundsForExpense(Money amount) {
+        validateCurrency(amount);
+
+        return this.currentBalance.subtract(amount).isPositiveOrZero();
+    }
+
+    /**
+     * Verifica si hay fondos suficientes después de revertir una transacción
+     * y aplicar una nueva transacción de tipo EXPENSE.
+     *
+     * @param oldType Tipo de la transacción a revertir
+     * @param oldAmount Monto de la transacción a revertir
+     * @param newExpenseAmount Monto del nuevo gasto
+     * @return true si hay fondos suficientes, false en caso contrario
+     */
+    public boolean hasSufficientFundsForUpdate(
+            TransactionType oldType,
+            Money oldAmount,
+            Money newExpenseAmount) {
+
+        Money projectedBalance = projectedBalanceAfterUpdate(
+                oldType,
+                oldAmount,
+                TransactionType.EXPENSE,
+                newExpenseAmount
+        );
+
+        return projectedBalance.isPositiveOrZero();
     }
 
     public void validateCurrency(Money amount) {
