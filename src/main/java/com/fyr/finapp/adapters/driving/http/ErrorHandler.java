@@ -2,6 +2,7 @@ package com.fyr.finapp.adapters.driving.http;
 
 import com.fyr.finapp.domain.exception.DomainException;
 import com.fyr.finapp.domain.exception.ErrorCategory;
+import jakarta.persistence.OptimisticLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -28,6 +29,20 @@ public class ErrorHandler {
             case SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
             case FORBIDDEN -> HttpStatus.FORBIDDEN;
         };
+    }
+
+    @ExceptionHandler(OptimisticLockException.class)
+    public ResponseEntity<ApiError> handleOptimisticLock(OptimisticLockException ex) {
+        var body = new ApiError(
+                "CONCURRENT_MODIFICATION",
+                HttpStatus.CONFLICT.value(),
+                "This data was modified by another operation. Please refresh and try again.",
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(body);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

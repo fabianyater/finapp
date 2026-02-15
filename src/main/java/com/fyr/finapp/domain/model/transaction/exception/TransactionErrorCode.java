@@ -12,7 +12,8 @@ public enum TransactionErrorCode implements DomainErrorCode {
     ACCESS_DENIED(ErrorCategory.FORBIDDEN),
     TRANSACTION_NOT_FOUND(ErrorCategory.NOT_FOUND),
     TRANSACTION_ALREADY_ARCHIVED(ErrorCategory.VALIDATION),
-    DESCRIPTION_REQUIRED(ErrorCategory.VALIDATION);
+    DESCRIPTION_REQUIRED(ErrorCategory.VALIDATION),
+    CURRENCY_MISMATCH(ErrorCategory.VALIDATION);
 
     private final ErrorCategory category;
 

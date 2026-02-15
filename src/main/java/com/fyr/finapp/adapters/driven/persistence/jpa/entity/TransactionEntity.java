@@ -35,7 +35,6 @@ public class TransactionEntity {
     @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
-
     @NotNull
     @Column(name = "occurred_on", nullable = false)
     private OffsetDateTime occurredOn;
@@ -46,6 +45,10 @@ public class TransactionEntity {
 
     @Column(name = "note", length = Integer.MAX_VALUE)
     private String note;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
 
     @NotNull
     @ColumnDefault("now()")

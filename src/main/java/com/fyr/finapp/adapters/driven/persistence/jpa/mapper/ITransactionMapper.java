@@ -10,6 +10,7 @@ import com.fyr.finapp.domain.shared.vo.Money;
 import com.fyr.finapp.domain.shared.vo.TransactionType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
 import java.time.Instant;
@@ -31,6 +32,20 @@ public interface ITransactionMapper {
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
     TransactionEntity toEntity(Transaction transaction);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "accounts", ignore = true)
+    @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "type", source = "type")
+    @Mapping(target = "amount", source = "amount.amount")
+    @Mapping(target = "currency", source = "currency.code")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "note", source = "note")
+    @Mapping(target = "occurredOn", source = "occurredOn", qualifiedByName = "instantToOffsetDateTime")
+    @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
+    @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
+    void updateEntityFromDomain(Transaction domain, @MappingTarget TransactionEntity entity);
 
     default Transaction toDomain(TransactionEntity entity) {
         if (entity == null) {

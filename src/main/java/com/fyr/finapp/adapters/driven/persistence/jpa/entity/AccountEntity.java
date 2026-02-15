@@ -71,6 +71,10 @@ public class AccountEntity {
     @Column(name = "exclude_from_total", nullable = false)
     private Boolean excludeFromTotal;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @NotNull
     @ColumnDefault("now()")
     @Column(name = "created_at", nullable = false)
