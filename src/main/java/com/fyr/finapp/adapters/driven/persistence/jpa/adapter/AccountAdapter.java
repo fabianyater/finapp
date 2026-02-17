@@ -49,7 +49,7 @@ public class AccountAdapter implements IAccountRepository {
 
     @Override
     public PagedAccounts findByUserId(UserId userId, AccountFilters filters) {
-        Sort.Direction direction = filters.ascending() ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort.Direction direction = filters.isAscending() ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, mapSortField(filters.sortBy()));
 
         var pageable = PageRequest.of(filters.page(), filters.size(), sort);

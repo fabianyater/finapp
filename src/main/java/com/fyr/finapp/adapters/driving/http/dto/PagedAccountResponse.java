@@ -1,7 +1,7 @@
 package com.fyr.finapp.adapters.driving.http.dto;
 
-import com.fyr.finapp.domain.api.account.ListAccountsUseCase.PagedAccountResult;
 import com.fyr.finapp.domain.api.account.ListAccountsUseCase.AccountResult;
+import com.fyr.finapp.domain.shared.pagination.PagedResult;
 
 import java.time.Instant;
 import java.util.List;
@@ -10,9 +10,9 @@ public record PagedAccountResponse(
         List<AccountDto> data,
         PaginationMeta meta
 ) {
-    public static PagedAccountResponse from(PagedAccountResult result) {
+    public static PagedAccountResponse from(PagedResult<AccountResult> result) {
         return new PagedAccountResponse(
-                result.accounts().stream()
+                result.content().stream()
                         .map(AccountDto::from)
                         .toList(),
                 new PaginationMeta(

@@ -4,6 +4,8 @@ import com.fyr.finapp.domain.model.account.Account;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.account.vo.AccountName;
 import com.fyr.finapp.domain.model.user.vo.UserId;
+import com.fyr.finapp.domain.shared.pagination.PageRequest;
+import com.fyr.finapp.domain.shared.pagination.SortDirection;
 
 import java.time.Instant;
 import java.util.List;
@@ -14,7 +16,9 @@ public interface IAccountRepository {
     void save(Account account);
 
     PagedAccounts findByUserId(UserId userId, AccountFilters filters);
+
     List<Account> findAllByUserId(UserId userId);
+
     Optional<Account> findById(AccountId id);
 
     boolean existsByUserIdAndName(UserId userId, AccountName name);
@@ -22,18 +26,35 @@ public interface IAccountRepository {
     int unmarkAllAsDefault(UserId userId);
 
     record AccountFilters(
-            int page,
-            int size,
-            String sortBy,
-            boolean ascending,
+            PageRequest pageRequest,
             Set<String> types,
             String search,
             Instant createdAfter,
             Instant createdBefore
-    ) {}
+    ) {
+        public AccountFilters {
+            types = types == null ? Set.of() : types;
+        }
+
+        public int page() {
+            return pageRequest.page();
+        }
+
+        public int size() {
+            return pageRequest.size();
+        }
+
+        public String sortBy() {
+            return pageRequest.sortBy();
+        }
+
+        public boolean isAscending() {
+            return pageRequest.direction() == SortDirection.ASC;
+        }
+    }
 
     record PagedAccounts(
             List<Account> accounts,
-            long totalElements
-    ) {}
+            long totalElements) {
+    }
 }
