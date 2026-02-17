@@ -8,11 +8,20 @@ import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.ITransactionMapper;
 import com.fyr.finapp.adapters.driven.persistence.jpa.repository.TransactionJpaRepository;
 import com.fyr.finapp.domain.model.transaction.Transaction;
 import com.fyr.finapp.domain.model.transaction.TransactionId;
+import com.fyr.finapp.domain.model.user.vo.UserId;
+import com.fyr.finapp.domain.shared.pagination.PageRequest;
+import com.fyr.finapp.domain.shared.pagination.SortDirection;
 import com.fyr.finapp.domain.spi.transaction.ITransactionRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -47,5 +56,99 @@ public class TransactionAdapter implements ITransactionRepository {
     public Optional<Transaction> findById(TransactionId id) {
         return transactionJpaRepository.findById(id.value())
                 .map(transactionEntityMapper::toDomain);
+    }
+
+    @Override
+    public PagedTransactions findByUserId(UserId userId, TransactionFilters filters) {
+        var spec = buildSpec(userId, filters);
+        var pageable = buildPageable(filters.pageRequest());
+        var page = transactionJpaRepository.findAll(spec, pageable);
+
+        return new PagedTransactions(
+                page.getContent().stream().map(transactionEntityMapper::toDomain).toList(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.hasNext(),
+                page.hasPrevious()
+        );
+    }
+
+    private Specification<TransactionEntity> buildSpec(UserId userId, TransactionFilters filters) {
+        Specification<TransactionEntity> spec = Specification.where(hasUserId(userId));
+
+        if (!filters.accountIds().isEmpty())
+            spec = spec.and(hasAccountIds(filters.accountIds()));
+        if (!filters.categoryIds().isEmpty())
+            spec = spec.and(hasCategoryIds(filters.categoryIds()));
+        if (!filters.types().isEmpty())
+            spec = spec.and(hasTypes(filters.types()));
+        if (filters.search() != null && !filters.search().isBlank())
+            spec = spec.and(hasSearch(filters.search()));
+        if (filters.dateFrom() != null)
+            spec = spec.and(hasDateFrom(filters.dateFrom()));
+        if (filters.dateTo() != null)
+            spec = spec.and(hasDateTo(filters.dateTo()));
+
+        return spec;
+    }
+
+    private Specification<TransactionEntity> hasUserId(UserId userId) {
+        return (root, query, cb) ->
+                cb.equal(root.get("user").get("id"), userId.value());
+    }
+
+    private Specification<TransactionEntity> hasAccountIds(Set<String> accountIds) {
+        if (accountIds == null || accountIds.isEmpty()) return null;
+        return (root, query, cb) ->
+                root.get("accounts").get("id").in(
+                        accountIds.stream().map(UUID::fromString).toList()
+                );
+    }
+
+    private Specification<TransactionEntity> hasCategoryIds(Set<String> categoryIds) {
+        if (categoryIds == null || categoryIds.isEmpty()) return null;
+        return (root, query, cb) ->
+                root.get("categories").get("id").in(
+                        categoryIds.stream().map(UUID::fromString).toList()
+                );
+    }
+
+    private Specification<TransactionEntity> hasTypes(Set<String> types) {
+        if (types == null || types.isEmpty()) return null;
+        return (root, query, cb) ->
+                root.get("type").in(types);
+    }
+
+    private Specification<TransactionEntity> hasSearch(String search) {
+        if (search == null || search.isBlank()) return null;
+        return (root, query, cb) ->
+                cb.or(
+                        cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%"),
+                        cb.like(cb.lower(root.get("note")), "%" + search.toLowerCase() + "%")
+                );
+    }
+
+    private Specification<TransactionEntity> hasDateFrom(Instant dateFrom) {
+        if (dateFrom == null) return null;
+        return (root, query, cb) ->
+                cb.greaterThanOrEqualTo(root.get("occurredOn"), dateFrom.atOffset(ZoneOffset.UTC));
+    }
+
+    private Specification<TransactionEntity> hasDateTo(Instant dateTo) {
+        if (dateTo == null) return null;
+        return (root, query, cb) ->
+                cb.lessThanOrEqualTo(root.get("occurredOn"), dateTo.atOffset(ZoneOffset.UTC));
+    }
+
+    private Pageable buildPageable(PageRequest pageRequest) {
+        var direction = pageRequest.direction() == SortDirection.ASC
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        return org.springframework.data.domain.PageRequest.of(
+                pageRequest.page(),
+                pageRequest.size(),
+                Sort.by(direction, pageRequest.sortBy())
+        );
     }
 }
