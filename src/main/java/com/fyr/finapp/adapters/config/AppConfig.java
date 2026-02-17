@@ -10,12 +10,14 @@ import com.fyr.finapp.application.usecase.account.*;
 import com.fyr.finapp.application.usecase.auth.AuthenticationService;
 import com.fyr.finapp.application.usecase.category.*;
 import com.fyr.finapp.application.usecase.transaction.CreateTransactionService;
+import com.fyr.finapp.application.usecase.transaction.ListTransactionService;
 import com.fyr.finapp.application.usecase.transaction.UpdateTransactionService;
 import com.fyr.finapp.application.usecase.user.UserService;
 import com.fyr.finapp.domain.api.account.*;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import com.fyr.finapp.domain.api.category.*;
 import com.fyr.finapp.domain.api.transaction.CreateTransactionUseCase;
+import com.fyr.finapp.domain.api.transaction.ListTransactionUseCase;
 import com.fyr.finapp.domain.api.transaction.UpdateTransactionUseCase;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
@@ -225,8 +227,7 @@ public class AppConfig {
             ITransactionRepository transactionRepository,
             IAccountRepository accountRepository,
             ICategoryRepository categoryRepository,
-            AccountValidator accountValidator
-    ) {
+            AccountValidator accountValidator) {
         return new UpdateTransactionService(
                 authenticationRepository,
                 transactionRepository,
@@ -235,4 +236,13 @@ public class AppConfig {
                 accountValidator
         );
     }
+
+    @Bean
+    public ListTransactionUseCase listTransactionUseCase(
+            ITransactionRepository transactionRepository,
+            IAuthenticationRepository authenticationRepository) {
+        return new ListTransactionService(transactionRepository,
+                authenticationRepository);
+    }
+
 }
