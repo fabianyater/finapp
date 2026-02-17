@@ -55,6 +55,9 @@ public interface IAccountRepository {
 
     record PagedAccounts(
             List<Account> accounts,
-            long totalElements) {
+            long totalElements,
+            int totalPages,
+            boolean hasNext,
+            boolean hasPrevious) {
     }
 }

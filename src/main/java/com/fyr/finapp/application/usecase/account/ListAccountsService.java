@@ -25,16 +25,14 @@ public class ListAccountsService implements ListAccountsUseCase {
                 .map(this::mapToResult)
                 .toList();
 
-        int totalPages = (int) Math.ceil((double) pagedAccounts.totalElements() / query.pageRequest().size());
-
         return new PagedResult<>(
                 accountResults,
                 query.pageRequest().page(),
                 query.pageRequest().size(),
                 pagedAccounts.totalElements(),
-                totalPages,
-                query.pageRequest().page() + 1 < totalPages,
-                query.pageRequest().page() > 0
+                pagedAccounts.totalPages(),
+                pagedAccounts.hasNext(),
+                pagedAccounts.hasPrevious()
         );
     }
 

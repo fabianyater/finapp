@@ -60,7 +60,13 @@ public class AccountAdapter implements IAccountRepository {
                 .map(mapper::toDomain)
                 .toList();
 
-        return new PagedAccounts(accounts, pageResult.getTotalElements());
+        return new PagedAccounts(
+                accounts,
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages(),
+                pageResult.hasNext(),
+                pageResult.hasPrevious()
+        );
     }
 
     @Override
