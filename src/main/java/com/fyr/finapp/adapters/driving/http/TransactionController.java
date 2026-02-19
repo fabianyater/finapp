@@ -27,7 +27,7 @@ import java.util.Set;
 @Tag(name = "Transactions", description = "Transaction management endpoints")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.base-path}/transactions")
+@RequestMapping("${api.base-path}/accounts")
 public class TransactionController {
     private final CreateTransactionUseCase createTransactionUseCase;
     private final UpdateTransactionUseCase updateTransactionUseCase;
@@ -35,7 +35,7 @@ public class TransactionController {
     private final TransactionDetailsUseCase transactionDetailsUseCase;
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/transactions", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> create(
             @Valid
             @RequestBody
@@ -68,8 +68,9 @@ public class TransactionController {
                 .body(result.id());
     }
 
-    @PutMapping("/{transactionId}")
+    @PutMapping("/{accountId}/transactions/{transactionId}")
     public ResponseEntity<Void> updateTransaction(
+            @PathVariable String accountId,
             @PathVariable String transactionId,
             @RequestBody @Valid UpdateTransactionRequest request) {
 
@@ -80,7 +81,7 @@ public class TransactionController {
                 request.description(),
                 request.note(),
                 request.occurredOn(),
-                request.accountId(),
+                accountId,
                 request.categoryId()
         );
 
@@ -90,7 +91,7 @@ public class TransactionController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping
+    @GetMapping("/transactions")
     @Operation(
             summary = "List transactions",
             description = "Get paginated list of transactions with filtering, sorting and search capabilities"
