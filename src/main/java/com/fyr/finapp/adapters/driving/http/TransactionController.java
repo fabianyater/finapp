@@ -1,10 +1,9 @@
 package com.fyr.finapp.adapters.driving.http;
 
-import com.fyr.finapp.adapters.driving.http.dto.CreateTransactionRequest;
-import com.fyr.finapp.adapters.driving.http.dto.PagedTransactionResponse;
-import com.fyr.finapp.adapters.driving.http.dto.UpdateTransactionRequest;
+import com.fyr.finapp.adapters.driving.http.dto.*;
 import com.fyr.finapp.domain.api.transaction.CreateTransactionUseCase;
 import com.fyr.finapp.domain.api.transaction.ListTransactionUseCase;
+import com.fyr.finapp.domain.api.transaction.TransactionDetailsUseCase;
 import com.fyr.finapp.domain.api.transaction.UpdateTransactionUseCase;
 import com.fyr.finapp.domain.shared.pagination.PageRequest;
 import com.fyr.finapp.domain.shared.pagination.SortDirection;
@@ -33,6 +32,7 @@ public class TransactionController {
     private final CreateTransactionUseCase createTransactionUseCase;
     private final UpdateTransactionUseCase updateTransactionUseCase;
     private final ListTransactionUseCase listTransactionUseCase;
+    private final TransactionDetailsUseCase transactionDetailsUseCase;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -126,5 +126,13 @@ public class TransactionController {
         var result = listTransactionUseCase.list(query);
 
         return ResponseEntity.ok(PagedTransactionResponse.from(result));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{accountId}/transactions/{transactionId}")
+    public ResponseEntity<TransactionResponse> get(@PathVariable String transactionId, @PathVariable String accountId) {
+        var result = transactionDetailsUseCase.getTransactionDetails(transactionId, accountId);
+
+        return ResponseEntity.ok(TransactionResponse.from(result));
     }
 }
