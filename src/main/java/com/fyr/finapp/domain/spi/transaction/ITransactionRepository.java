@@ -1,5 +1,6 @@
 package com.fyr.finapp.domain.spi.transaction;
 
+import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.transaction.Transaction;
 import com.fyr.finapp.domain.model.transaction.TransactionId;
 import com.fyr.finapp.domain.model.user.vo.UserId;
@@ -16,6 +17,8 @@ public interface ITransactionRepository {
     Optional<Transaction> findById(TransactionId id);
 
     PagedTransactions findByUserId(UserId userId, TransactionFilters filters);
+
+    Optional<Transaction> getTransactionByIdAndAccountId(TransactionId transactionId, AccountId id);
 
     record TransactionFilters(
             PageRequest pageRequest,

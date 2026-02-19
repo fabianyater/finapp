@@ -6,6 +6,7 @@ import com.fyr.finapp.adapters.driven.persistence.jpa.entity.TransactionEntity;
 import com.fyr.finapp.adapters.driven.persistence.jpa.entity.UserEntity;
 import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.ITransactionMapper;
 import com.fyr.finapp.adapters.driven.persistence.jpa.repository.TransactionJpaRepository;
+import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.transaction.Transaction;
 import com.fyr.finapp.domain.model.transaction.TransactionId;
 import com.fyr.finapp.domain.model.user.vo.UserId;
@@ -71,6 +72,12 @@ public class TransactionAdapter implements ITransactionRepository {
                 page.hasNext(),
                 page.hasPrevious()
         );
+    }
+
+    @Override
+    public Optional<Transaction> getTransactionByIdAndAccountId(TransactionId transactionId, AccountId id) {
+        return transactionJpaRepository.findByIdAndAccounts_Id(transactionId.value(), id.value())
+                .map(transactionEntityMapper::toDomain);
     }
 
     private Specification<TransactionEntity> buildSpec(UserId userId, TransactionFilters filters) {
