@@ -8,10 +8,12 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @Entity
@@ -59,6 +61,9 @@ public class TransactionEntity {
     @ColumnDefault("now()")
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private OffsetDateTime deletedAt;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -1,10 +1,10 @@
 package com.fyr.finapp.adapters.driving.http;
 
-import com.fyr.finapp.adapters.driving.http.dto.*;
-import com.fyr.finapp.domain.api.transaction.CreateTransactionUseCase;
-import com.fyr.finapp.domain.api.transaction.ListTransactionUseCase;
-import com.fyr.finapp.domain.api.transaction.TransactionDetailsUseCase;
-import com.fyr.finapp.domain.api.transaction.UpdateTransactionUseCase;
+import com.fyr.finapp.adapters.driving.http.dto.CreateTransactionRequest;
+import com.fyr.finapp.adapters.driving.http.dto.PagedTransactionResponse;
+import com.fyr.finapp.adapters.driving.http.dto.TransactionResponse;
+import com.fyr.finapp.adapters.driving.http.dto.UpdateTransactionRequest;
+import com.fyr.finapp.domain.api.transaction.*;
 import com.fyr.finapp.domain.shared.pagination.PageRequest;
 import com.fyr.finapp.domain.shared.pagination.SortDirection;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +33,7 @@ public class TransactionController {
     private final UpdateTransactionUseCase updateTransactionUseCase;
     private final ListTransactionUseCase listTransactionUseCase;
     private final TransactionDetailsUseCase transactionDetailsUseCase;
+    private final DeleteTransactionUseCase deleteTransactionUseCase;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/transactions", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -135,5 +136,15 @@ public class TransactionController {
         var result = transactionDetailsUseCase.getTransactionDetails(transactionId, accountId);
 
         return ResponseEntity.ok(TransactionResponse.from(result));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{accountId}/transactions/{txnId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable String accountId,
+            @PathVariable String txnId) {
+        deleteTransactionUseCase.delete(txnId, accountId);
+
+        return ResponseEntity.noContent().build();
     }
 }

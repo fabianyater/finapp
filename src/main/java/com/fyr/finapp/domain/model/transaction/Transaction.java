@@ -22,6 +22,7 @@ public class Transaction {
     private Instant occurredOn;
     private final Instant createdAt;
     private Instant updatedAt;
+    private Instant deletedAt;
     private final UserId userId;
     private CategoryId categoryId;
     private AccountId accountId;
@@ -36,6 +37,7 @@ public class Transaction {
             Instant occurredOn,
             Instant createdAt,
             Instant updatedAt,
+            Instant deletedAt,
             UserId userId,
             CategoryId categoryId,
             AccountId accountId
@@ -49,6 +51,7 @@ public class Transaction {
         this.occurredOn = occurredOn;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
         this.userId = userId;
         this.categoryId = categoryId;
         this.accountId = accountId;
@@ -90,6 +93,7 @@ public class Transaction {
                 occurredOn,
                 now,
                 now,
+                null,
                 userId,
                 categoryId,
                 accountId
@@ -105,6 +109,7 @@ public class Transaction {
             Instant occurredOn,
             Instant createdAt,
             Instant updatedAt,
+            Instant deletedAt,
             UserId userId,
             CategoryId categoryId,
             AccountId accountId
@@ -119,11 +124,26 @@ public class Transaction {
                 occurredOn,
                 createdAt,
                 updatedAt,
+                deletedAt,
                 userId,
                 categoryId,
                 accountId
         );
     }
+
+    public void softDelete() {
+        if (isDeleted()) {
+            throw new IllegalStateException("Transaction is already deleted");
+        }
+
+        this.deletedAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
 
     public void update(
             TransactionType type,
@@ -134,6 +154,13 @@ public class Transaction {
             CategoryId categoryId,
             AccountId accountId
     ) {
+        if (isDeleted()) {
+            throw new ValidationException(
+                    "Cannot update a deleted transaction",
+                    TransactionErrorCode.TRANSACTION_DELETED
+            );
+        }
+
         if (amount.isNegative() || amount.isZero()) {
             throw new ValidationException(
                     "Amount cannot be negative",
@@ -228,6 +255,10 @@ public class Transaction {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public Instant getDeletedAt() {
+        return deletedAt;
     }
 
     public UserId getUserId() {

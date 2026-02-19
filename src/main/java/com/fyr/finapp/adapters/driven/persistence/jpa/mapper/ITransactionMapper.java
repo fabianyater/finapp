@@ -31,6 +31,7 @@ public interface ITransactionMapper {
     @Mapping(target = "occurredOn", source = "occurredOn", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
+    @Mapping(target = "deletedAt", source = "deletedAt", qualifiedByName = "instantToOffsetDateTime")
     TransactionEntity toEntity(Transaction transaction);
 
     @Mapping(target = "id", ignore = true)
@@ -45,6 +46,7 @@ public interface ITransactionMapper {
     @Mapping(target = "occurredOn", source = "occurredOn", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
+    @Mapping(target = "deletedAt", source = "deletedAt", qualifiedByName = "instantToOffsetDateTime")
     void updateEntityFromDomain(Transaction domain, @MappingTarget TransactionEntity entity);
 
     default Transaction toDomain(TransactionEntity entity) {
@@ -60,6 +62,7 @@ public interface ITransactionMapper {
                 offsetDateTimeToInstant(entity.getOccurredOn()),
                 offsetDateTimeToInstant(entity.getCreatedAt()),
                 offsetDateTimeToInstant(entity.getUpdatedAt()),
+                offsetDateTimeToInstant(entity.getDeletedAt()),
                 UserId.of(entity.getUser().getId().toString()),
                 CategoryId.of(entity.getCategories().getId().toString()),
                 AccountId.of(entity.getAccounts().getId().toString())

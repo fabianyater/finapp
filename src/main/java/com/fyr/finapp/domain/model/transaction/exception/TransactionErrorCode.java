@@ -13,7 +13,8 @@ public enum TransactionErrorCode implements DomainErrorCode {
     TRANSACTION_NOT_FOUND(ErrorCategory.NOT_FOUND),
     TRANSACTION_ALREADY_ARCHIVED(ErrorCategory.VALIDATION),
     DESCRIPTION_REQUIRED(ErrorCategory.VALIDATION),
-    CURRENCY_MISMATCH(ErrorCategory.VALIDATION);
+    CURRENCY_MISMATCH(ErrorCategory.VALIDATION),
+    TRANSACTION_DELETED(ErrorCategory.VALIDATION);
 
     private final ErrorCategory category;
 
