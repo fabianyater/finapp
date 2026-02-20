@@ -6,6 +6,5 @@ public record CreateTransactionRequest(
         String description,
         String note,
         String occurredOn,
-        String categoryId,
-        String accountId) {
+        String categoryId) {
 }

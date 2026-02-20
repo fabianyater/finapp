@@ -36,8 +36,9 @@ public class TransactionController {
     private final DeleteTransactionUseCase deleteTransactionUseCase;
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping(value = "/transactions", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{accountId}/transactions", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> create(
+            @PathVariable String accountId,
             @Valid
             @RequestBody
             @Parameter(
@@ -53,7 +54,7 @@ public class TransactionController {
                 request.note(),
                 request.occurredOn(),
                 request.categoryId(),
-                request.accountId()
+                accountId
         );
 
         var result = createTransactionUseCase.create(command);
