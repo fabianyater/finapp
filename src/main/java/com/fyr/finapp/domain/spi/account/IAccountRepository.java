@@ -25,6 +25,8 @@ public interface IAccountRepository {
 
     int unmarkAllAsDefault(UserId userId);
 
+    void delete(AccountId id);
+
     record AccountFilters(
             PageRequest pageRequest,
             Set<String> types,

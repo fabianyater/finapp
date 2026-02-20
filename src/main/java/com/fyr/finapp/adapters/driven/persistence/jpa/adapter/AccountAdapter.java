@@ -93,6 +93,11 @@ public class AccountAdapter implements IAccountRepository {
         return repo.unmarkAllAsDefault(userId.value());
     }
 
+    @Override
+    public void delete(AccountId id) {
+        repo.deleteById(id.value());
+    }
+
     private String mapSortField(String domainField) {
         return switch (domainField) {
             case "initialBalance" -> "initialBalance";

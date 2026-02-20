@@ -267,4 +267,15 @@ public class AppConfig {
                 accountValidator);
     }
 
+    @Bean
+    public DeleteAccountUseCase deleteAccountUseCase(
+            IAuthenticationRepository authenticationRepository,
+            IAccountRepository accountRepository,
+            AccountValidator accountValidator) {
+        return new DeleteAccountService(
+                accountRepository,
+                authenticationRepository,
+                accountValidator);
+    }
+
 }

@@ -35,6 +35,7 @@ public class AccountController {
     private final UpdateAccountUseCase updateAccountUseCase;
     private final ArchiveAccountUseCase archiveAccountUseCase;
     private final AccountDetailsUseCase accountDetailsUseCase;
+    private final DeleteAccountUseCase deleteAccountUseCase;
 
     @Operation(
             summary = "Create a new account",
@@ -190,5 +191,13 @@ public class AccountController {
                 .noContent()
                 .location(location)
                 .build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        deleteAccountUseCase.delete(id);
+
+        return ResponseEntity.noContent().build();
     }
 }
