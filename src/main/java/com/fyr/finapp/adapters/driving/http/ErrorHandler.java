@@ -3,6 +3,8 @@ package com.fyr.finapp.adapters.driving.http;
 import com.fyr.finapp.domain.exception.DomainException;
 import com.fyr.finapp.domain.exception.ErrorCategory;
 import jakarta.persistence.OptimisticLockException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,6 +20,8 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ErrorHandler {
+    private static final Logger log = LoggerFactory.getLogger(ErrorHandler.class);
+
     public record ApiError(String status, int code, String message, Map<String, List<String>> errors) {
     }
 
@@ -33,6 +37,8 @@ public class ErrorHandler {
 
     @ExceptionHandler(OptimisticLockException.class)
     public ResponseEntity<ApiError> handleOptimisticLock(OptimisticLockException ex) {
+        log.warn("Optimistic lock conflict: {}", ex.getMessage());
+
         var body = new ApiError(
                 "CONCURRENT_MODIFICATION",
                 HttpStatus.CONFLICT.value(),
@@ -67,6 +73,8 @@ public class ErrorHandler {
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ApiError> handleDomainValidation(DomainException ex) {
+        log.warn("Domain exception [{}] - {}", ex.getCode().name(), ex.getMessage());
+
         var body = new ApiError(
                 ex.getCode().name(),
                 statusOf(ex.getCategory()).value(),
@@ -79,6 +87,8 @@ public class ErrorHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
+        log.warn("Failed login attempt");
+
         var body = new ApiError(
                 ex.getClass().getSimpleName(),
                 HttpStatus.UNAUTHORIZED.value(),
@@ -91,6 +101,8 @@ public class ErrorHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleUnexpected(Exception ex) {
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
+
         var body = new ApiError(
                 "SERVER_ERROR",
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

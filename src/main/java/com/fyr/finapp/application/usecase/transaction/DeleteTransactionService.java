@@ -10,8 +10,12 @@ import com.fyr.finapp.domain.spi.account.IAccountRepository;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.transaction.ITransactionRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeleteTransactionService implements DeleteTransactionUseCase {
+    private static final Logger log = LoggerFactory.getLogger(DeleteTransactionService.class);
+
     private final IAuthenticationRepository authenticationRepository;
     private final ITransactionRepository transactionRepository;
     private final IAccountRepository accountRepository;
@@ -32,16 +36,22 @@ public class DeleteTransactionService implements DeleteTransactionUseCase {
     @Override
     public void delete(String transactionId, String accountId) {
         var userId = authenticationRepository.getCurrentUserId();
+        log.debug("Deleting transaction id={} accountId={} userId={}", transactionId, accountId, userId.value());
+
         var accId = AccountId.of(accountId);
         var txnId = TransactionId.of(transactionId);
 
         var account = accountValidator.getAccountAndValidateOwnership(accId, userId);
 
         var transaction = transactionRepository.getTransactionByIdAndAccountId(txnId, accId)
-                .orElseThrow(() -> new ValidationException(
-                        "Transaction not found for id=" + transactionId + " and accountId=" + accountId,
-                        TransactionErrorCode.TRANSACTION_NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    log.warn("Transaction not found id={} accountId={} userId={}", transactionId, accountId, userId.value());
+
+                    return new ValidationException(
+                            "Transaction not found for id=" + transactionId + " and accountId=" + accountId,
+                            TransactionErrorCode.TRANSACTION_NOT_FOUND
+                    );
+                });
 
         account.reverseTransaction(transaction.getType(), transaction.getAmount());
 
@@ -49,5 +59,7 @@ public class DeleteTransactionService implements DeleteTransactionUseCase {
 
         transactionRepository.save(transaction);
         accountRepository.save(account);
+
+        log.info("Transaction deleted id={} accountId={} userId={}", transactionId, accountId, userId.value());
     }
 }

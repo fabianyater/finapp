@@ -5,8 +5,12 @@ import com.fyr.finapp.domain.model.transaction.Transaction;
 import com.fyr.finapp.domain.shared.pagination.PagedResult;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.transaction.ITransactionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ListTransactionService implements ListTransactionUseCase {
+    private static final Logger log = LoggerFactory.getLogger(ListTransactionService.class);
+
     private final ITransactionRepository transactionRepository;
     private final IAuthenticationRepository authenticationRepository;
 
@@ -18,8 +22,13 @@ public class ListTransactionService implements ListTransactionUseCase {
     @Override
     public PagedResult<TransactionResult> list(Query query) {
         var userId = authenticationRepository.getCurrentUserId();
+        log.debug("Listing transactions userId={} page={} size={}",
+                userId.value(), query.pageRequest().page(), query.pageRequest().size());
+
         var filters = mapToFilters(query);
         var paged = transactionRepository.findByUserId(userId, filters);
+
+        log.debug("Found {} transactions for userId={}", paged.totalElements(), userId.value());
 
         return new PagedResult<>(
                 paged.transactions().stream().map(this::mapToResult).toList(),

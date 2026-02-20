@@ -9,8 +9,12 @@ import com.fyr.finapp.domain.model.transaction.TransactionId;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 import com.fyr.finapp.domain.spi.transaction.ITransactionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransactionDetailsService implements TransactionDetailsUseCase {
+    private static final Logger log = LoggerFactory.getLogger(TransactionDetailsService.class);
+
     private final IAuthenticationRepository authenticationRepository;
     private final ITransactionRepository transactionRepository;
     private final ICategoryRepository categoryRepository;
@@ -31,11 +35,16 @@ public class TransactionDetailsService implements TransactionDetailsUseCase {
         var accId = AccountId.of(accountId);
         var txnId = TransactionId.of(transactionId);
         var userId = authenticationRepository.getCurrentUserId();
+        log.debug("Fetching transaction details id={} accountId={} userId={}", transactionId, accountId, userId.value());
 
         accountValidator.getAccountAndValidateOwnership(accId, userId);
 
         var transaction = transactionRepository.getTransactionByIdAndAccountId(txnId, accId)
-                .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+                .orElseThrow(() -> {
+                    log.warn("Transaction not found id={} accountId={} userId={}", transactionId, accountId, userId.value());
+
+                    return new IllegalArgumentException("Transaction not found");
+                });
 
         var categoryName = categoryRepository.findById(transaction.getCategoryId())
                 .map(Category::getName)

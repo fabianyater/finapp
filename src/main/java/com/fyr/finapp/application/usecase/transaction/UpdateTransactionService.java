@@ -21,12 +21,16 @@ import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 import com.fyr.finapp.domain.spi.transaction.ITransactionRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class UpdateTransactionService implements UpdateTransactionUseCase {
+    private static final Logger log = LoggerFactory.getLogger(UpdateTransactionService.class);
+
     private final IAuthenticationRepository authenticationRepository;
     private final ITransactionRepository transactionRepository;
     private final IAccountRepository accountRepository;
@@ -54,6 +58,7 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
     public void update(Command command) {
         var userId = authenticationRepository.getCurrentUserId();
         var transactionId = TransactionId.of(command.transactionId());
+        log.debug("Updating transaction id={} userId={}", command.transactionId(), userId.value());
 
         var transaction = getTransactionAndValidateOwnership(transactionId, userId);
 
@@ -68,6 +73,9 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
 
         saveAccounts(originalState, newState);
         transactionRepository.save(transaction);
+
+        log.info("Transaction updated id={} userId={} type={} amount={} accountId={}",
+                command.transactionId(), userId.value(), command.type(), command.amount(), command.accountId());
     }
 
     private OriginalTransactionState captureOriginalTransactionState(Transaction transaction) {
@@ -130,6 +138,9 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
             );
 
             if (!hasFunds) {
+                log.warn("Insufficient funds for update transactionId={} accountId={} userId={}",
+                        original.accountId().value(), newState.amount(), original.account.getUserId());
+
                 throw new ValidationException(
                         "Insufficient funds in account",
                         AccountErrorCode.INSUFFICIENT_FUNDS
@@ -139,6 +150,9 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
             boolean hasFunds = newState.account().hasSufficientFundsForExpense(newState.amount());
 
             if (!hasFunds) {
+                log.warn("Insufficient funds in target account accountId={} amount={}",
+                        newState.accountId().value(), newState.amount());
+
                 throw new ValidationException(
                         "Insufficient funds in target account",
                         AccountErrorCode.INSUFFICIENT_FUNDS
@@ -191,12 +205,18 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
 
     private Transaction getTransactionAndValidateOwnership(TransactionId transactionId, UserId userId) {
         var transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new ValidationException(
-                        "Transaction not found",
-                        TransactionErrorCode.TRANSACTION_NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    log.warn("Transaction not found id={} userId={}", transactionId.value(), userId.value());
+
+                    return new ValidationException(
+                            "Transaction not found",
+                            TransactionErrorCode.TRANSACTION_NOT_FOUND
+                    );
+                });
 
         if (!transaction.getUserId().equals(userId)) {
+            log.warn("Unauthorized access to transaction id={} userId={}", transactionId.value(), userId.value());
+
             throw new ForbiddenException(
                     "You don't have access to this transaction",
                     TransactionErrorCode.ACCESS_DENIED

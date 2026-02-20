@@ -20,10 +20,14 @@ import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 import com.fyr.finapp.domain.spi.transaction.ITransactionRepository;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
 public class CreateTransactionService implements CreateTransactionUseCase {
+    private static final Logger log = LoggerFactory.getLogger(CreateTransactionService.class);
+
     private final IAuthenticationRepository authenticationRepository;
     private final ITransactionRepository transactionRepository;
     private final IAccountRepository accountRepository;
@@ -46,6 +50,8 @@ public class CreateTransactionService implements CreateTransactionUseCase {
     @Transactional
     public Result create(Command command) {
         var userId = authenticationRepository.getCurrentUserId();
+        log.debug("Creating transaction for userId={} accountId={}", userId.value(), command.accountId());
+
         var accountId = AccountId.of(command.accountId());
         var categoryId = CategoryId.of(command.categoryId());
         var type = TransactionType.fromString(command.type());
@@ -60,6 +66,8 @@ public class CreateTransactionService implements CreateTransactionUseCase {
 
         if (type == TransactionType.EXPENSE &&
                 account.getCurrentBalance().subtract(amount).isNegative()) {
+            log.warn("Insufficient funds for userId={} accountId={} amount={}",
+                    userId.value(), accountId.value(), command.amount());
             throw new ValidationException(
                     "Insufficient funds",
                     AccountErrorCode.INSUFFICIENT_FUNDS
@@ -81,6 +89,9 @@ public class CreateTransactionService implements CreateTransactionUseCase {
 
         transactionRepository.save(transaction);
         accountRepository.save(account);
+
+        log.info("Transaction created id={} type={} amount={} accountId={} userId={}",
+                transaction.getId().value(), type, command.amount(), accountId.value(), userId.value());
 
         return new Result(transaction.getId().value().toString());
     }
