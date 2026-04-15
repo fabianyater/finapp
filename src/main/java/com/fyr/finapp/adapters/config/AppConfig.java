@@ -283,8 +283,9 @@ public class AppConfig {
     @Bean
     public UserDetailsUseCase userDetailsUseCase(
             IUserRepository userRepository,
+            IUserPreferenceRepository userPreferenceRepository,
             IAuthenticationRepository authenticationRepository) {
-        return new UserDetailsService(userRepository, authenticationRepository);
+        return new UserDetailsService(userRepository, userPreferenceRepository, authenticationRepository);
     }
 
 }

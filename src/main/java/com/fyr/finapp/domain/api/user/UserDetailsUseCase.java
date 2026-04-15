@@ -12,6 +12,16 @@ public interface UserDetailsUseCase {
             String username,
             String email,
             OffsetDateTime createdAt,
-            OffsetDateTime updatedAt
+            OffsetDateTime updatedAt,
+            PreferenceResult preferences
+    ) {}
+
+    record PreferenceResult(
+            String locale,
+            String currency,
+            String timezone,
+            Boolean darkMode,
+            Short firstDayOfWeek,
+            String dateFormat
     ) {}
 }
