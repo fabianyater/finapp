@@ -34,7 +34,8 @@ public enum UserErrorCode implements DomainErrorCode {
     PREFERENCE_ID_REQUIRED(ErrorCategory.VALIDATION),
     TIMEZONE_REQUIRED(ErrorCategory.VALIDATION),
     TIMEZONE_BLANK(ErrorCategory.VALIDATION),
-    TIMEZONE_INVALID(ErrorCategory.VALIDATION);
+    TIMEZONE_INVALID(ErrorCategory.VALIDATION),
+    USER_NOT_FOUND(ErrorCategory.NOT_FOUND);
 
     private final ErrorCategory category;
 

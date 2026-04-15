@@ -10,12 +10,14 @@ import com.fyr.finapp.application.usecase.account.*;
 import com.fyr.finapp.application.usecase.auth.AuthenticationService;
 import com.fyr.finapp.application.usecase.category.*;
 import com.fyr.finapp.application.usecase.transaction.*;
+import com.fyr.finapp.application.usecase.user.UserDetailsService;
 import com.fyr.finapp.application.usecase.user.UserService;
 import com.fyr.finapp.domain.api.account.*;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import com.fyr.finapp.domain.api.category.*;
 import com.fyr.finapp.domain.api.transaction.*;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
+import com.fyr.finapp.domain.api.user.UserDetailsUseCase;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.auth.IEncryptionRepository;
@@ -276,6 +278,13 @@ public class AppConfig {
                 accountRepository,
                 authenticationRepository,
                 accountValidator);
+    }
+
+    @Bean
+    public UserDetailsUseCase userDetailsUseCase(
+            IUserRepository userRepository,
+            IAuthenticationRepository authenticationRepository) {
+        return new UserDetailsService(userRepository, authenticationRepository);
     }
 
 }

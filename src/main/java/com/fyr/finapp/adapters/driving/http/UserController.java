@@ -1,8 +1,8 @@
 package com.fyr.finapp.adapters.driving.http;
 
-import com.fyr.finapp.adapters.driving.http.dto.CreateUserRequest;
-import com.fyr.finapp.adapters.driving.http.dto.CreateUserResponse;
+import com.fyr.finapp.adapters.driving.http.dto.*;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
+import com.fyr.finapp.domain.api.user.UserDetailsUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,10 +13,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -27,6 +25,7 @@ import java.net.URI;
 @RequestMapping("${api.base-path}/users")
 class UserController {
     private final CreateUserUseCase createUserUseCase;
+    private final UserDetailsUseCase userDetailsUseCase;
 
     @Operation(
             summary = "Crear usuario",
@@ -77,7 +76,9 @@ class UserController {
     public ResponseEntity<CreateUserResponse> create(
             @Valid
             @RequestBody
-            @Parameter(description = "Create user request payload", required = true, schema = @Schema(implementation = CreateUserRequest.class))
+            @Parameter(description = "Create user request payload",
+                    required = true,
+                    schema = @Schema(implementation = CreateUserRequest.class))
             CreateUserRequest request) {
         var command = new CreateUserUseCase.CreateUserCommand(
                 request.name(),
@@ -98,5 +99,28 @@ class UserController {
         return ResponseEntity
                 .created(location)
                 .body(response);
+    }
+
+    @Operation(
+            summary = "Obtener perfil del usuario autenticado",
+            description = "Retorna los datos del usuario actualmente autenticado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Datos del usuario",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = UserDetailsResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "401", description = "No autenticado"),
+                    @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            }
+    )
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDetailsResponse> getMe() {
+        var result = userDetailsUseCase.get();
+        return ResponseEntity.ok(UserDetailsResponse.from(result));
     }
 }
