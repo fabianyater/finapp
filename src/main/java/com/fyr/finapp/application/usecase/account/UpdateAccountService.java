@@ -14,12 +14,14 @@ import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import jakarta.transaction.Transactional;
 
 public class UpdateAccountService implements UpdateAccountUseCase {
+
     private final IAccountRepository accountRepository;
     private final IAuthenticationRepository authenticationRepository;
     private final AccountValidator accountValidator;
 
     public UpdateAccountService(IAccountRepository accountRepository,
-                                IAuthenticationRepository authenticationRepository, AccountValidator accountValidator) {
+                                IAuthenticationRepository authenticationRepository,
+                                AccountValidator accountValidator) {
         this.accountRepository = accountRepository;
         this.authenticationRepository = authenticationRepository;
         this.accountValidator = accountValidator;
@@ -39,8 +41,6 @@ public class UpdateAccountService implements UpdateAccountUseCase {
 
         handleDefaultAccountChange(command, existingAccount, userId);
         updateExcludeFromTotalIfNeeded(command, existingAccount);
-
-        // TODO: Handle changes to the initial balance once transactions are implemented
 
         existingAccount.update(
                 newName,

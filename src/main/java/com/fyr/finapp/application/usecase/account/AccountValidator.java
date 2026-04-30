@@ -34,6 +34,17 @@ public class AccountValidator {
         return account;
     }
 
+    public @NonNull Account getAccountAndValidateAccess(AccountId accountId, UserId userId) {
+        Account account = getAccountOrThrow(accountId);
+        if (!account.getUserId().equals(userId) && !accountRepository.isMember(accountId, userId)) {
+            throw new ForbiddenException(
+                    "You don't have access to this account",
+                    AccountErrorCode.ACCESS_DENIED
+            );
+        }
+        return account;
+    }
+
     /**
      * Busca una cuenta por ID o lanza excepción si no existe.
      *

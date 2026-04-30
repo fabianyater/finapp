@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import java.util.Comparator;
 
 public class ArchiveAccountService implements ArchiveAccountUseCase {
+
     private final IAccountRepository accountRepository;
     private final IAuthenticationRepository authenticationRepository;
     private final AccountValidator accountValidator;

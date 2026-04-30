@@ -38,6 +38,7 @@ public interface ListAccountsUseCase {
             String name,
             String type,
             long initialBalance,
+            long currentBalance,
             String currency,
             String icon,
             String color,

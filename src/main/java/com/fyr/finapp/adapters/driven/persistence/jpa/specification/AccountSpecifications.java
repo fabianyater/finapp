@@ -1,7 +1,10 @@
 package com.fyr.finapp.adapters.driven.persistence.jpa.specification;
 
 import com.fyr.finapp.adapters.driven.persistence.jpa.entity.AccountEntity;
+import com.fyr.finapp.adapters.driven.persistence.jpa.entity.AccountMemberEntity;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
@@ -21,7 +24,13 @@ public class AccountSpecifications {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(cb.equal(root.get("user").get("id"), userId));
+            Subquery<UUID> memberSub = query.subquery(UUID.class);
+            Root<AccountMemberEntity> memberRoot = memberSub.from(AccountMemberEntity.class);
+            memberSub.select(memberRoot.get("accountId"))
+                    .where(cb.equal(memberRoot.get("userId"), userId));
+            Predicate isOwner = cb.equal(root.get("user").get("id"), userId);
+            Predicate isMember = root.get("id").in(memberSub);
+            predicates.add(cb.or(isOwner, isMember));
 
             if (types != null && !types.isEmpty()) {
                 predicates.add(root.get("type").in(types));

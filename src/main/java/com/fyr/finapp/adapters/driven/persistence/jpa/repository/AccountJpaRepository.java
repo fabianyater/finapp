@@ -20,4 +20,7 @@ public interface AccountJpaRepository extends
     int unmarkAllAsDefault(@Param("userId") UUID userId);
 
     List<AccountEntity> findByUser_Id(UUID id);
+
+    @Query("SELECT a FROM AccountEntity a WHERE a.user.id = :userId OR a.id IN (SELECT m.accountId FROM AccountMemberEntity m WHERE m.userId = :userId)")
+    List<AccountEntity> findAllAccessibleByUserId(@Param("userId") UUID userId);
 }

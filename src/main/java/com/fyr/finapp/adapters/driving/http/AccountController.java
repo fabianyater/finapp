@@ -3,6 +3,7 @@ package com.fyr.finapp.adapters.driving.http;
 
 import com.fyr.finapp.adapters.driving.http.dto.*;
 import com.fyr.finapp.domain.api.account.*;
+import com.fyr.finapp.domain.api.account.ListMembersUseCase.MemberResult;
 import com.fyr.finapp.domain.shared.pagination.PageRequest;
 import com.fyr.finapp.domain.shared.pagination.SortDirection;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,8 +35,12 @@ public class AccountController {
     private final ListAccountsUseCase listAccountsUseCase;
     private final UpdateAccountUseCase updateAccountUseCase;
     private final ArchiveAccountUseCase archiveAccountUseCase;
+    private final UnarchiveAccountUseCase unarchiveAccountUseCase;
     private final AccountDetailsUseCase accountDetailsUseCase;
     private final DeleteAccountUseCase deleteAccountUseCase;
+    private final InviteMemberUseCase inviteMemberUseCase;
+    private final RemoveMemberUseCase removeMemberUseCase;
+    private final ListMembersUseCase listMembersUseCase;
 
     @Operation(
             summary = "Create a new account",
@@ -194,10 +199,53 @@ public class AccountController {
     }
 
     @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/{accountId}/unarchive")
+    public ResponseEntity<Void> unarchive(@PathVariable String accountId) {
+        unarchiveAccountUseCase.unarchive(new UnarchiveAccountUseCase.Command(accountId));
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{accountId}")
+                .buildAndExpand(accountId)
+                .toUri();
+
+        return ResponseEntity
+                .noContent()
+                .location(location)
+                .build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         deleteAccountUseCase.delete(id);
 
         return ResponseEntity.noContent().build();
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{accountId}/members")
+    public ResponseEntity<java.util.List<MemberResult>> listMembers(@PathVariable String accountId) {
+        return ResponseEntity.ok(listMembersUseCase.list(accountId));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{accountId}/members")
+    public ResponseEntity<Void> inviteMember(
+            @PathVariable String accountId,
+            @RequestBody InviteMemberRequest request) {
+        inviteMemberUseCase.invite(accountId, request.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{accountId}/members/{userId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable String accountId,
+            @PathVariable String userId) {
+        removeMemberUseCase.remove(accountId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    record InviteMemberRequest(String email) {}
 }

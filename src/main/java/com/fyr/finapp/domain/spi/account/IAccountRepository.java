@@ -27,6 +27,16 @@ public interface IAccountRepository {
 
     void delete(AccountId id);
 
+    void addMember(AccountId accountId, UserId userId, UserId invitedBy);
+
+    void removeMember(AccountId accountId, UserId userId);
+
+    List<MemberInfo> findMembers(AccountId accountId);
+
+    boolean isMember(AccountId accountId, UserId userId);
+
+    record MemberInfo(String userId, String email, String name, Instant joinedAt) {}
+
     record AccountFilters(
             PageRequest pageRequest,
             Set<String> types,

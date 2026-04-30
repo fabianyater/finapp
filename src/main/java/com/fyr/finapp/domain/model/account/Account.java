@@ -145,9 +145,12 @@ public class Account {
             Icon newIcon,
             Color newColor
     ) {
+        // Preserve net transactions: currentBalance = newInitialBalance + (currentBalance - initialBalance)
+        Money netTransactions = this.currentBalance.subtract(this.initialBalance);
         this.name = newName;
         this.type = newType;
         this.initialBalance = newInitialBalance;
+        this.currentBalance = newInitialBalance.add(netTransactions);
         this.icon = newIcon;
         this.color = newColor;
         this.updatedAt = Instant.now();
@@ -159,6 +162,7 @@ public class Account {
         this.currentBalance = switch (type) {
             case INCOME -> this.currentBalance.add(amount);
             case EXPENSE -> this.currentBalance.subtract(amount);
+            case TRANSFER -> throw new UnsupportedOperationException("Use debit/credit for TRANSFER transactions");
         };
     }
 
@@ -168,7 +172,20 @@ public class Account {
         this.currentBalance = switch (type) {
             case INCOME -> this.currentBalance.subtract(amount);
             case EXPENSE -> this.currentBalance.add(amount);
+            case TRANSFER -> throw new UnsupportedOperationException("Use debit/credit for TRANSFER transactions");
         };
+    }
+
+    public void debit(Money amount) {
+        validateCurrency(amount);
+        this.currentBalance = this.currentBalance.subtract(amount);
+        this.updatedAt = Instant.now();
+    }
+
+    public void credit(Money amount) {
+        validateCurrency(amount);
+        this.currentBalance = this.currentBalance.add(amount);
+        this.updatedAt = Instant.now();
     }
 
     /**
@@ -185,6 +202,7 @@ public class Account {
         return switch (type) {
             case INCOME -> this.currentBalance.subtract(amount);
             case EXPENSE -> this.currentBalance.add(amount);
+            case TRANSFER -> throw new UnsupportedOperationException("Use debit/credit for TRANSFER transactions");
         };
     }
 
@@ -202,6 +220,7 @@ public class Account {
         return switch (type) {
             case INCOME -> this.currentBalance.add(amount);
             case EXPENSE -> this.currentBalance.subtract(amount);
+            case TRANSFER -> throw new UnsupportedOperationException("Use debit/credit for TRANSFER transactions");
         };
     }
 
@@ -228,11 +247,13 @@ public class Account {
         Money balanceAfterReversal = switch (oldType) {
             case INCOME -> this.currentBalance.subtract(oldAmount);
             case EXPENSE -> this.currentBalance.add(oldAmount);
+            case TRANSFER -> throw new UnsupportedOperationException("Use debit/credit for TRANSFER transactions");
         };
 
         return switch (newType) {
             case INCOME -> balanceAfterReversal.add(newAmount);
             case EXPENSE -> balanceAfterReversal.subtract(newAmount);
+            case TRANSFER -> throw new UnsupportedOperationException("Use debit/credit for TRANSFER transactions");
         };
     }
 

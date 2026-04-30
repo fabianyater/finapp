@@ -1,9 +1,11 @@
 package com.fyr.finapp.adapters.driven.persistence.jpa.adapter;
 
 import com.fyr.finapp.adapters.driven.persistence.jpa.entity.AccountEntity;
+import com.fyr.finapp.adapters.driven.persistence.jpa.entity.AccountMemberEntity;
 import com.fyr.finapp.adapters.driven.persistence.jpa.entity.UserEntity;
 import com.fyr.finapp.adapters.driven.persistence.jpa.mapper.IAccountMapper;
 import com.fyr.finapp.adapters.driven.persistence.jpa.repository.AccountJpaRepository;
+import com.fyr.finapp.adapters.driven.persistence.jpa.repository.AccountMemberJpaRepository;
 import com.fyr.finapp.adapters.driven.persistence.jpa.specification.AccountSpecifications;
 import com.fyr.finapp.domain.model.account.Account;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AccountAdapter implements IAccountRepository {
     private final AccountJpaRepository repo;
+    private final AccountMemberJpaRepository memberRepo;
     private final EntityManager entityManager;
     private final IAccountMapper mapper;
 
@@ -71,10 +75,43 @@ public class AccountAdapter implements IAccountRepository {
 
     @Override
     public List<Account> findAllByUserId(UserId userId) {
-        return repo.findByUser_Id(userId.value())
+        return repo.findAllAccessibleByUserId(userId.value())
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public void addMember(AccountId accountId, UserId userId, UserId invitedBy) {
+        var member = new AccountMemberEntity();
+        member.setAccountId(accountId.value());
+        member.setUserId(userId.value());
+        member.setInvitedBy(invitedBy.value());
+        member.setJoinedAt(OffsetDateTime.now());
+        memberRepo.save(member);
+    }
+
+    @Override
+    public void removeMember(AccountId accountId, UserId userId) {
+        memberRepo.deleteByAccountIdAndUserId(accountId.value(), userId.value());
+    }
+
+    @Override
+    public List<MemberInfo> findMembers(AccountId accountId) {
+        return memberRepo.findMembersWithUsers(accountId.value())
+                .stream()
+                .map(m -> new MemberInfo(
+                        m.getUserId().toString(),
+                        m.getUser().getEmail(),
+                        m.getUser().getName(),
+                        m.getJoinedAt().toInstant()
+                ))
+                .toList();
+    }
+
+    @Override
+    public boolean isMember(AccountId accountId, UserId userId) {
+        return memberRepo.existsByAccountIdAndUserId(accountId.value(), userId.value());
     }
 
     @Override

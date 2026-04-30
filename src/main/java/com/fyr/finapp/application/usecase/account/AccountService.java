@@ -15,10 +15,12 @@ import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import java.util.List;
 
 public class AccountService implements CreateAccountUseCase {
+
     private final IAccountRepository accountRepository;
     private final IAuthenticationRepository authenticationRepository;
 
-    public AccountService(IAccountRepository accountRepository, IAuthenticationRepository authenticationRepository) {
+    public AccountService(IAccountRepository accountRepository,
+                          IAuthenticationRepository authenticationRepository) {
         this.accountRepository = accountRepository;
         this.authenticationRepository = authenticationRepository;
     }

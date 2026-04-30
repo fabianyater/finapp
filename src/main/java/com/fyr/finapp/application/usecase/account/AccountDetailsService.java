@@ -28,6 +28,7 @@ public class AccountDetailsService implements AccountDetailsUseCase {
                 account.getName().value(),
                 account.getType().name(),
                 account.getInitialBalance().amount(),
+                account.getCurrentBalance().amount(),
                 account.getCurrency().code(),
                 account.getIcon().name(),
                 account.getColor().value(),

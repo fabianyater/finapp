@@ -15,9 +15,14 @@ public enum AccountErrorCode implements DomainErrorCode {
     ACCOUNT_NOT_FOUND(ErrorCategory.NOT_FOUND),
     ACCESS_DENIED(ErrorCategory.FORBIDDEN),
     ACCOUNT_ALREADY_ARCHIVED(ErrorCategory.VALIDATION),
+    ACCOUNT_NOT_ARCHIVED(ErrorCategory.VALIDATION),
     ACCOUNT_ARCHIVED(ErrorCategory.VALIDATION),
     CURRENCY_MISMATCH(ErrorCategory.VALIDATION),
-    INSUFFICIENT_FUNDS(ErrorCategory.VALIDATION);
+    INSUFFICIENT_FUNDS(ErrorCategory.VALIDATION),
+    MEMBER_NOT_FOUND(ErrorCategory.NOT_FOUND),
+    ALREADY_MEMBER(ErrorCategory.VALIDATION),
+    CANNOT_INVITE_SELF(ErrorCategory.VALIDATION),
+    CANNOT_REMOVE_OWNER(ErrorCategory.VALIDATION);
 
     private final ErrorCategory category;
 

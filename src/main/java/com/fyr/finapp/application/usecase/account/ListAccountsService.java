@@ -52,6 +52,7 @@ public class ListAccountsService implements ListAccountsUseCase {
                 account.getName().value(),
                 account.getType().name(),
                 account.getInitialBalance().amount(),
+                account.getCurrentBalance().amount(),
                 account.getInitialBalance().currency().code(),
                 account.getIcon().name(),
                 account.getColor().value(),
