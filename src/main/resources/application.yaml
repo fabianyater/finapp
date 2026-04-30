@@ -2,7 +2,7 @@ spring:
   application:
     name: finapp
   profiles:
-    active: local
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
 api:
   base-path: /api/v1
