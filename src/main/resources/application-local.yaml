@@ -20,6 +20,9 @@ spring:
     ignore-migration-patterns: "*:missing"
 
 management:
+  metrics:
+    enable:
+      system: false
   endpoints:
     web:
       exposure:
