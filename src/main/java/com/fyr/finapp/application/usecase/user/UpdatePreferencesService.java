@@ -1,27 +1,33 @@
 package com.fyr.finapp.application.usecase.user;
 
+import com.fyr.finapp.domain.api.user.UpdatePreferencesUseCase;
 import com.fyr.finapp.domain.api.user.UserDetailsUseCase;
 import com.fyr.finapp.domain.exception.NotFoundException;
 import com.fyr.finapp.domain.exception.messages.UserErrorMessages;
 import com.fyr.finapp.domain.model.user.UserPreference;
 import com.fyr.finapp.domain.model.user.exception.UserErrorCode;
+import com.fyr.finapp.domain.model.user.vo.DateFormatPattern;
+import com.fyr.finapp.domain.model.user.vo.LocaleTag;
+import com.fyr.finapp.domain.shared.vo.Currency;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.user.IUserPreferenceRepository;
 import com.fyr.finapp.domain.spi.user.IUserRepository;
 
-public class UserDetailsService implements UserDetailsUseCase {
+public class UpdatePreferencesService implements UpdatePreferencesUseCase {
     private final IUserRepository userRepository;
     private final IUserPreferenceRepository userPreferenceRepository;
     private final IAuthenticationRepository authenticationRepository;
 
-    public UserDetailsService(IUserRepository userRepository, IUserPreferenceRepository userPreferenceRepository, IAuthenticationRepository authenticationRepository) {
+    public UpdatePreferencesService(IUserRepository userRepository,
+                                    IUserPreferenceRepository userPreferenceRepository,
+                                    IAuthenticationRepository authenticationRepository) {
         this.userRepository = userRepository;
         this.userPreferenceRepository = userPreferenceRepository;
         this.authenticationRepository = authenticationRepository;
     }
 
     @Override
-    public UserResult get() {
+    public UserDetailsUseCase.UserResult update(UpdatePreferencesCommand command) {
         var userId = authenticationRepository.getCurrentUserId();
         var user = userRepository.getUserById(userId);
 
@@ -29,10 +35,17 @@ public class UserDetailsService implements UserDetailsUseCase {
             throw new NotFoundException(UserErrorMessages.USER_NOT_FOUND, UserErrorCode.USER_NOT_FOUND);
         }
 
-        var preferences = userPreferenceRepository.findByUserId(userId)
+        var prefs = userPreferenceRepository.findByUserId(userId)
                 .orElseGet(() -> UserPreference.defaultFor(userId));
 
-        return new UserResult(
+        if (command.currency() != null) prefs.setCurrency(new Currency(command.currency()));
+        if (command.language() != null) prefs.setLocale(new LocaleTag(command.language()));
+        if (command.dateFormat() != null) prefs.setDateFormat(new DateFormatPattern(command.dateFormat()));
+        if (command.theme() != null) prefs.setTheme(command.theme());
+
+        userPreferenceRepository.save(prefs);
+
+        return new UserDetailsUseCase.UserResult(
                 user.getId().value().toString(),
                 user.getName().value(),
                 user.getSurname().value(),
@@ -40,13 +53,13 @@ public class UserDetailsService implements UserDetailsUseCase {
                 user.getEmail().value(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
-                new PreferenceResult(
-                        preferences.getLocale().value(),
-                        preferences.getCurrency().code(),
-                        preferences.getTimezone().value(),
-                        preferences.getTheme(),
-                        preferences.getFirstDayOfWeek().value(),
-                        preferences.getDateFormat().value()
+                new UserDetailsUseCase.PreferenceResult(
+                        prefs.getLocale().value(),
+                        prefs.getCurrency().code(),
+                        prefs.getTimezone().value(),
+                        prefs.getTheme(),
+                        prefs.getFirstDayOfWeek().value(),
+                        prefs.getDateFormat().value()
                 )
         );
     }

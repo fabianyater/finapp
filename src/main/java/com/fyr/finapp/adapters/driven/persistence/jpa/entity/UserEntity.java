@@ -3,12 +3,14 @@ package com.fyr.finapp.adapters.driven.persistence.jpa.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.OffsetDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@BatchSize(size = 30)
 @Getter
 @Setter
 @Entity
@@ -40,7 +42,13 @@ public class UserEntity {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
+    @Column(name = "refresh_token_expires_at")
+    private OffsetDateTime refreshTokenExpiresAt;
+
+    @OneToMany(mappedBy = "user")
     private Set<AccountEntity> accountEntities = new LinkedHashSet<>();
 
     @PrePersist

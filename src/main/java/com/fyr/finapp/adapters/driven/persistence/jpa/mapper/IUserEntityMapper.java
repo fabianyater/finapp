@@ -11,6 +11,8 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface IUserEntityMapper {
     @Mapping(target = "accountEntities", ignore = true)
+    @Mapping(target = "refreshToken", ignore = true)
+    @Mapping(target = "refreshTokenExpiresAt", ignore = true)
     UserEntity toEntity(User user);
 
     User toUser(UserEntity userEntity);

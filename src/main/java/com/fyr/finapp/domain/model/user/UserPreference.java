@@ -10,7 +10,7 @@ public class UserPreference {
     private LocaleTag locale;
     private Currency currency;
     private TimezoneId timezone;
-    private Boolean darkMode;
+    private String theme;
     private FirstDayOfWeek firstDayOfWeek;
     private DateFormatPattern dateFormat;
     private OffsetDateTime createdAt;
@@ -20,12 +20,12 @@ public class UserPreference {
     public UserPreference() {
     }
 
-    public UserPreference(PreferenceId id, LocaleTag locale, Currency currency, TimezoneId timezone, Boolean darkMode, FirstDayOfWeek firstDayOfWeek, DateFormatPattern dateFormat, OffsetDateTime createdAt, OffsetDateTime updatedAt, UserId user) {
+    public UserPreference(PreferenceId id, LocaleTag locale, Currency currency, TimezoneId timezone, String theme, FirstDayOfWeek firstDayOfWeek, DateFormatPattern dateFormat, OffsetDateTime createdAt, OffsetDateTime updatedAt, UserId user) {
         this.id = id;
         this.locale = locale;
         this.currency = currency;
         this.timezone = timezone;
-        this.darkMode = darkMode;
+        this.theme = theme;
         this.firstDayOfWeek = firstDayOfWeek;
         this.dateFormat = dateFormat;
         this.createdAt = createdAt;
@@ -65,12 +65,12 @@ public class UserPreference {
         this.timezone = timezone;
     }
 
-    public Boolean getDarkMode() {
-        return darkMode;
+    public String getTheme() {
+        return theme;
     }
 
-    public void setDarkMode(Boolean darkMode) {
-        this.darkMode = darkMode;
+    public void setTheme(String theme) {
+        this.theme = theme;
     }
 
     public FirstDayOfWeek getFirstDayOfWeek() {
@@ -121,7 +121,7 @@ public class UserPreference {
                 UserPreferenceDefaults.LOCALE,
                 UserPreferenceDefaults.CURRENCY,
                 UserPreferenceDefaults.TIMEZONE,
-                UserPreferenceDefaults.DARK_MODE,
+                UserPreferenceDefaults.THEME,
                 UserPreferenceDefaults.FIRST_DAY_OF_WEEK,
                 UserPreferenceDefaults.DATE_FORMAT,
                 now,

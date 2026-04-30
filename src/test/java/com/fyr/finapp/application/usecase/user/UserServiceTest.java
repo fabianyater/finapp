@@ -40,7 +40,7 @@ class UserServiceTest {
         });
 
         var createUserCommand = new CreateUserUseCase.CreateUserCommand("John", "Doe", email, plainPassword);
-        var userService = new UserService(userRepository, userPreferenceRepository, categoryRepository, accountRepository, encryptionRepository);
+        var userService = new UserService(userRepository, userPreferenceRepository, accountRepository, encryptionRepository);
 
         var result = userService.create(createUserCommand);
 
@@ -69,7 +69,7 @@ class UserServiceTest {
         when(userRepository.existsByEmail(email)).thenReturn(true);
 
         var createUserCommand = new CreateUserUseCase.CreateUserCommand("John", "Doe", email, "StrongPassword123");
-        var userService = new UserService(userRepository, userPreferenceRepository, categoryRepository, accountRepository, encryptionRepository);
+        var userService = new UserService(userRepository, userPreferenceRepository, accountRepository, encryptionRepository);
 
         assertThatThrownBy(() -> userService.create(createUserCommand))
                 .isInstanceOf(ConflictException.class)
@@ -102,7 +102,7 @@ class UserServiceTest {
         });
 
         var createUserCommand = new CreateUserUseCase.CreateUserCommand("Jane", "Smith", email, plainPassword);
-        var userService = new UserService(userRepository, userPreferenceRepository, categoryRepository, accountRepository, encryptionRepository);
+        var userService = new UserService(userRepository, userPreferenceRepository, accountRepository, encryptionRepository);
 
         var result = userService.create(createUserCommand);
 

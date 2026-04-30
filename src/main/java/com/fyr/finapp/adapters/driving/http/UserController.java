@@ -2,6 +2,9 @@ package com.fyr.finapp.adapters.driving.http;
 
 import com.fyr.finapp.adapters.driving.http.dto.*;
 import com.fyr.finapp.domain.api.user.CreateUserUseCase;
+import com.fyr.finapp.domain.api.user.DeleteUserUseCase;
+import com.fyr.finapp.domain.api.user.UpdatePreferencesUseCase;
+import com.fyr.finapp.domain.api.user.UpdateProfileUseCase;
 import com.fyr.finapp.domain.api.user.UserDetailsUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +29,9 @@ import java.net.URI;
 class UserController {
     private final CreateUserUseCase createUserUseCase;
     private final UserDetailsUseCase userDetailsUseCase;
+    private final UpdateProfileUseCase updateProfileUseCase;
+    private final UpdatePreferencesUseCase updatePreferencesUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
 
     @Operation(
             summary = "Crear usuario",
@@ -122,5 +128,29 @@ class UserController {
     public ResponseEntity<UserDetailsResponse> getMe() {
         var result = userDetailsUseCase.get();
         return ResponseEntity.ok(UserDetailsResponse.from(result));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDetailsResponse> updateProfile(@RequestBody UpdateProfileRequest request) {
+        var command = new UpdateProfileUseCase.UpdateProfileCommand(request.name(), request.surname());
+        var result = updateProfileUseCase.update(command);
+        return ResponseEntity.ok(UserDetailsResponse.from(result));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping(value = "/me/preferences", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserDetailsResponse> updatePreferences(@RequestBody UpdatePreferencesRequest request) {
+        var command = new UpdatePreferencesUseCase.UpdatePreferencesCommand(
+                request.currency(), request.language(), request.dateFormat(), request.theme());
+        var result = updatePreferencesUseCase.update(command);
+        return ResponseEntity.ok(UserDetailsResponse.from(result));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMe() {
+        deleteUserUseCase.delete();
+        return ResponseEntity.noContent().build();
     }
 }

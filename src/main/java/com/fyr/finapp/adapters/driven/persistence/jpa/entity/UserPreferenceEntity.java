@@ -37,9 +37,9 @@ public class UserPreferenceEntity {
     @Column(name = "timezone", nullable = false, length = 64)
     private String timezone;
 
-    @ColumnDefault("false")
-    @Column(name = "dark_mode", nullable = false)
-    private Boolean darkMode;
+    @ColumnDefault("'system'")
+    @Column(name = "theme", nullable = false, length = 10)
+    private String theme;
 
     @ColumnDefault("1")
     @Column(name = "first_day_of_week", nullable = false)

@@ -22,7 +22,7 @@ public record UserDetailsResponse(
                         prefs.locale(),
                         prefs.currency(),
                         prefs.timezone(),
-                        prefs.darkMode(),
+                        prefs.theme(),
                         prefs.firstDayOfWeek(),
                         prefs.dateFormat()
                 )
@@ -33,7 +33,7 @@ public record UserDetailsResponse(
             String locale,
             String currency,
             String timezone,
-            Boolean darkMode,
+            String theme,
             Short firstDayOfWeek,
             String dateFormat
     ) {}

@@ -20,7 +20,7 @@ public interface UserDetailsUseCase {
             String locale,
             String currency,
             String timezone,
-            Boolean darkMode,
+            String theme,
             Short firstDayOfWeek,
             String dateFormat
     ) {}

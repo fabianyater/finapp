@@ -1,6 +1,6 @@
 package com.fyr.finapp.adapters.driving.http;
 
-import com.fyr.finapp.domain.api.user.CreateUserUseCase;
+import com.fyr.finapp.domain.api.user.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,18 @@ class UserControllerTest {
 
     @MockitoBean
     private CreateUserUseCase createUserUseCase;
+
+    @MockitoBean
+    private UserDetailsUseCase userDetailsUseCase;
+
+    @MockitoBean
+    private UpdateProfileUseCase updateProfileUseCase;
+
+    @MockitoBean
+    private UpdatePreferencesUseCase updatePreferencesUseCase;
+
+    @MockitoBean
+    private DeleteUserUseCase deleteUserUseCase;
 
     @Test
     void shouldCreateUserSuccessfully() throws Exception {
