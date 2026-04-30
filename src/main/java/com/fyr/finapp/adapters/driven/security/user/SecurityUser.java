@@ -21,7 +21,7 @@ public class SecurityUser implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
 
     public SecurityUser(UUID id, String email, String fullName, String username, String passwordHash) {
-        this(id, email, username, fullName, passwordHash, List.of());
+        this(id, email, fullName, username, passwordHash, List.of());
     }
 
     public SecurityUser(UUID id, String email, String fullName, String username, String passwordHash,

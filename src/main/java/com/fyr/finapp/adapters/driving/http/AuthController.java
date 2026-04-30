@@ -1,6 +1,7 @@
 package com.fyr.finapp.adapters.driving.http;
 
 import com.fyr.finapp.adapters.driving.http.dto.LoginRequest;
+import com.fyr.finapp.adapters.driving.http.dto.RefreshTokenRequest;
 import com.fyr.finapp.domain.api.auth.AuthenticateUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -81,5 +82,13 @@ class AuthController {
         var result = authenticateUseCase.authenticate(cmd);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping(value = "/refresh", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AuthenticateUseCase.AuthResult> refresh(
+            @Valid @RequestBody RefreshTokenRequest request
+    ) {
+        var result = authenticateUseCase.refresh(request.refreshToken());
+        return ResponseEntity.ok(result);
     }
 }

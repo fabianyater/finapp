@@ -32,7 +32,7 @@ class AuthControllerTest {
     @Test
     void shouldAuthenticateSuccessfullyWithValidCredentials() throws Exception {
         LoginRequest loginRequest = new LoginRequest("user@example.com", "password123");
-        AuthResult authResult = new AuthResult("token123", "userId123", loginRequest.email());
+        AuthResult authResult = new AuthResult("token123", "", "userId123", loginRequest.email());
 
         when(authenticateUseCase.authenticate(any(LoginCommand.class))).thenReturn(authResult);
 

@@ -19,4 +19,9 @@ public class AuthenticationService implements AuthenticateUseCase {
 
         return authenticationRepository.authenticate(email, password);
     }
+
+    @Override
+    public AuthResult refresh(String refreshToken) {
+        return authenticationRepository.refreshToken(refreshToken);
+    }
 }

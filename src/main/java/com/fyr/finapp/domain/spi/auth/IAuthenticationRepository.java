@@ -7,5 +7,6 @@ import com.fyr.finapp.domain.model.user.vo.UserId;
 
 public interface IAuthenticationRepository {
     AuthenticateUseCase.AuthResult authenticate(Email email, PlainPassword password);
+    AuthenticateUseCase.AuthResult refreshToken(String refreshToken);
     UserId getCurrentUserId();
 }

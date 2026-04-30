@@ -27,7 +27,7 @@ class AuthenticationServiceTest {
         String email = "user@example.com";
         String password = "password123";
         AuthenticateUseCase.LoginCommand command = new AuthenticateUseCase.LoginCommand(email, password);
-        AuthenticateUseCase.AuthResult expectedResponse = new AuthenticateUseCase.AuthResult("token123", "userId123", email);
+        AuthenticateUseCase.AuthResult expectedResponse = new AuthenticateUseCase.AuthResult("token123", "gg", "userId123", email);
 
         when(authenticationRepository.authenticate(new Email(email), new PlainPassword(password)))
                 .thenReturn(expectedResponse);
