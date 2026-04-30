@@ -25,7 +25,7 @@ import java.util.List;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final List<String> allowedOrigins = List.of("http://localhost:3000");
+    private final List<String> allowedOrigins = List.of("http://localhost:3000", "finapp-web-nine.vercel.app");
     private final List<String> allowedMethods = List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
 
     @Bean
