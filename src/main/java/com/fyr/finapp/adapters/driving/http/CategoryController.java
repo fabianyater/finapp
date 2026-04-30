@@ -5,6 +5,8 @@ import com.fyr.finapp.adapters.driving.http.dto.CreateAccountRequest;
 import com.fyr.finapp.adapters.driving.http.dto.CreateCategoryRequest;
 import com.fyr.finapp.adapters.driving.http.dto.UpdateCategoryRequest;
 import com.fyr.finapp.domain.api.category.*;
+import com.fyr.finapp.adapters.driving.http.dto.SetupCategoriesRequest;
+import com.fyr.finapp.adapters.driving.http.dto.CategorySummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 
 @Tag(name = "Categories", description = "Category management endpoints")
@@ -32,6 +36,36 @@ public class CategoryController {
     private final UpdateCategoryUseCase updateCategoryUseCase;
     private final DeleteCategoryUseCase deleteCategoryUseCase;
     private final RestoreCategoryUseCase restoreCategoryUseCase;
+    private final GetCategoryTemplatesUseCase getCategoryTemplatesUseCase;
+    private final SetupCategoriesUseCase setupCategoriesUseCase;
+    private final GetCategorySummaryUseCase getCategorySummaryUseCase;
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/templates")
+    public ResponseEntity<List<GetCategoryTemplatesUseCase.TemplateResult>> getTemplates() {
+        return ResponseEntity.ok(getCategoryTemplatesUseCase.execute());
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/summary")
+    public ResponseEntity<List<CategorySummaryResponse>> getSummary(
+            @RequestParam String accountId,
+            @RequestParam String type,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant dateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant dateTo) {
+        var results = getCategorySummaryUseCase.execute(new GetCategorySummaryUseCase.Query(accountId, type, dateFrom, dateTo));
+        var response = results.stream()
+                .map(r -> new CategorySummaryResponse(r.categoryId(), r.name(), r.color(), r.icon(), r.total()))
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/setup")
+    public ResponseEntity<Void> setup(@Valid @RequestBody SetupCategoriesRequest request) {
+        setupCategoriesUseCase.setup(new SetupCategoriesUseCase.Command(request.keys()));
+        return ResponseEntity.noContent().build();
+    }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -62,6 +96,15 @@ public class CategoryController {
         return ResponseEntity
                 .created(location)
                 .body(result.id());
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/deleted")
+    public ResponseEntity<List<CategoryResponse>> listDeleted() {
+        var categories = listCategoriesUseCase.executeDeleted().stream()
+                .map(c -> new CategoryResponse(c.id(), c.name(), c.type(), c.color(), c.icon(), c.createdAt()))
+                .toList();
+        return ResponseEntity.ok(categories);
     }
 
     @PreAuthorize("isAuthenticated()")

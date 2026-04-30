@@ -94,20 +94,13 @@ public class Category {
         this.updatedAt = Instant.now();
     }
 
-    public static List<Category> createDefaultCategoriesForUser(UserId userId) {
-        return List.of(
-                create(userId, CategoryName.of("Salario"), TransactionType.INCOME, Color.of("#10b981"), Icon.of("currency-dollar")),
-                create(userId, CategoryName.of("Freelance"), TransactionType.INCOME, Color.of("#3b82f6"), Icon.of("laptop")),
-                create(userId, CategoryName.of("Alimentación"), TransactionType.EXPENSE, Color.of("#ef4444"), Icon.of("utensils")),
-                create(userId, CategoryName.of("Transporte"), TransactionType.EXPENSE, Color.of("#f59e0b"), Icon.of("car")),
-                create(userId, CategoryName.of("Vivienda"), TransactionType.EXPENSE, Color.of("#06b6d4"), Icon.of("home")),
-                create(userId, CategoryName.of("Mascotas"), TransactionType.EXPENSE, Color.of("#8b5cf6"), Icon.of("paw")),
-                create(userId, CategoryName.of("Entretenimiento"), TransactionType.EXPENSE, Color.of("#ec4899"), Icon.of("gamepad")),
-                create(userId, CategoryName.of("Salud"), TransactionType.EXPENSE, Color.of("#3d4451"), Icon.of("heart-pulse")),
-                create(userId, CategoryName.of("Educación"), TransactionType.EXPENSE, Color.of("#14b8a6"), Icon.of("book")),
-                create(userId, CategoryName.of("Ropa"), TransactionType.EXPENSE, Color.of("#f97316"), Icon.of("tshirt")),
-                create(userId, CategoryName.of("Viajes"), TransactionType.EXPENSE, Color.of("#0ea5e9"), Icon.of("plane")),
-                create(userId, CategoryName.of("Regalos"), TransactionType.EXPENSE, Color.of("#db2777"), Icon.of("gift"))
+    public static Category createFromTemplate(UserId userId, CategoryTemplate template) {
+        return create(
+                userId,
+                CategoryName.of(template.name()),
+                TransactionType.fromString(template.type()),
+                Color.of(template.color()),
+                Icon.of(template.icon())
         );
     }
 

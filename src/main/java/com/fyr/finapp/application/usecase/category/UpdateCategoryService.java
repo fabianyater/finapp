@@ -17,6 +17,7 @@ import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 import jakarta.transaction.Transactional;
 
 public class UpdateCategoryService implements UpdateCategoryUseCase {
+
     private final ICategoryRepository categoryRepository;
     private final IAuthenticationRepository authenticationRepository;
 

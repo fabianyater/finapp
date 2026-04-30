@@ -13,6 +13,7 @@ public interface ICategoryRepository {
     void save(Category category);
     void saveAll(Iterable<Category> categories);
     List<Category> findAllByUserId(UserId userId);
+    List<Category> findAllDeletedByUserId(UserId userId);
     Optional<Category> findById(CategoryId categoryId);
     boolean existsByUserIdAndTypeAndName(UserId userId, TransactionType type, CategoryName name);
 }

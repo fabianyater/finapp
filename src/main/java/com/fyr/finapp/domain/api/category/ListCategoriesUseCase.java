@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface ListCategoriesUseCase {
     List<CategoryResult> execute();
+    List<CategoryResult> executeDeleted();
 
     record CategoryResult(
             String id,

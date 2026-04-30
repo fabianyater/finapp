@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 import org.jspecify.annotations.NonNull;
 
 public class CreateCategoryService implements CreateCategoryUseCase {
+
     private final ICategoryRepository categoryRepository;
     private final IAuthenticationRepository authenticationRepository;
 

@@ -12,6 +12,7 @@ import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 import jakarta.transaction.Transactional;
 
 public class RestoreCategoryService implements RestoreCategoryUseCase {
+
     private final IAuthenticationRepository authenticationRepository;
     private final ICategoryRepository categoryRepository;
 

@@ -22,14 +22,27 @@ public class ListAccountService implements ListCategoriesUseCase {
         var userId = authenticationRepository.getCurrentUserId().value().toString();
         return categoryRepository.findAllByUserId(UserId.of(userId))
                 .stream()
-                .map(category -> new CategoryResult(
-                        category.getId().value().toString(),
-                        category.getName().value(),
-                        category.getType().name(),
-                        category.getColor().value(),
-                        category.getIcon().name(),
-                        category.getCreatedAt().toString()
-                ))
+                .map(this::toResult)
                 .toList();
+    }
+
+    @Override
+    public List<CategoryResult> executeDeleted() {
+        var userId = authenticationRepository.getCurrentUserId().value().toString();
+        return categoryRepository.findAllDeletedByUserId(UserId.of(userId))
+                .stream()
+                .map(this::toResult)
+                .toList();
+    }
+
+    private CategoryResult toResult(com.fyr.finapp.domain.model.category.Category category) {
+        return new CategoryResult(
+                category.getId().value().toString(),
+                category.getName().value(),
+                category.getType().name(),
+                category.getColor().value(),
+                category.getIcon().name(),
+                category.getCreatedAt().toString()
+        );
     }
 }

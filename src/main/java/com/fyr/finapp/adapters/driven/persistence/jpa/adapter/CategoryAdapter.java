@@ -73,6 +73,13 @@ public class CategoryAdapter implements ICategoryRepository {
     }
 
     @Override
+    public List<Category> findAllDeletedByUserId(UserId userId) {
+        return repo.findAllByUser_IdAndIsDeletedTrue(userId.value()).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public boolean existsByUserIdAndTypeAndName(UserId userId, TransactionType type, CategoryName name) {
         return repo.existsByUser_IdAndTypeAndNameAndIsDeletedFalse(userId.value(), type.name(), name.value());
     }

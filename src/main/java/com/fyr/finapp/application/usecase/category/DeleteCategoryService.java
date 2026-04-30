@@ -12,6 +12,7 @@ import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 import jakarta.transaction.Transactional;
 
 public class DeleteCategoryService implements DeleteCategoryUseCase {
+
     private final ICategoryRepository categoryRepository;
     private final IAuthenticationRepository authenticationRepository;
 
