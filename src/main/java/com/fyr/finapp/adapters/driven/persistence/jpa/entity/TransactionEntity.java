@@ -1,0 +1,102 @@
+package com.fyr.finapp.adapters.driven.persistence.jpa.entity;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+@SQLRestriction("deleted_at IS NULL")
+@Getter
+@Setter
+@Entity
+@Table(name = "transactions")
+public class TransactionEntity {
+    @Id
+    @Column(name = "id", nullable = false)
+    private UUID id;
+
+    @NotNull
+    @Column(name = "type", nullable = false, length = Integer.MAX_VALUE)
+    private String type;
+
+    @NotNull
+    @Column(name = "amount", nullable = false)
+    private Long amount;
+
+    @Size(max = 3)
+    @NotNull
+    @ColumnDefault("'COP'")
+    @Column(name = "currency", nullable = false, length = 3)
+    private String currency;
+
+    @NotNull
+    @Column(name = "occurred_on", nullable = false)
+    private OffsetDateTime occurredOn;
+
+    @NotNull
+    @Column(name = "description", nullable = false, length = Integer.MAX_VALUE)
+    private String description;
+
+    @Column(name = "note", length = Integer.MAX_VALUE)
+    private String note;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
+    @NotNull
+    @ColumnDefault("now()")
+    @Column(name = "created_at", nullable = false)
+    private OffsetDateTime createdAt;
+
+    @NotNull
+    @ColumnDefault("now()")
+    @Column(name = "updated_at", nullable = false)
+    private OffsetDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private OffsetDateTime deletedAt;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "account_id", nullable = false)
+    private AccountEntity accounts;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "category_id", nullable = true)
+    private CategoryEntity categories;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "to_account_id", nullable = true)
+    private AccountEntity toAccount;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "transaction_tags", joinColumns = @JoinColumn(name = "transaction_id"))
+    @Column(name = "tag", length = 100, nullable = false)
+    private Set<String> tags = new HashSet<>();
+
+    @PrePersist
+    public void prePersist() {
+        var now = OffsetDateTime.now();
+        if (createdAt == null) createdAt = now;
+        if (updatedAt == null) updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = OffsetDateTime.now();
+    }
+}

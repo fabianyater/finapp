@@ -1,0 +1,16 @@
+package com.fyr.finapp.domain.model.user;
+
+import com.fyr.finapp.domain.shared.vo.Currency;
+import com.fyr.finapp.domain.model.user.vo.*;
+
+public final class UserPreferenceDefaults {
+    private UserPreferenceDefaults() {
+    }
+
+    public static final LocaleTag LOCALE = new LocaleTag("es-CO");
+    public static final Currency CURRENCY = new Currency("COP");
+    public static final TimezoneId TIMEZONE = new TimezoneId("America/Bogota");
+    public static final String THEME = "system";
+    public static final FirstDayOfWeek FIRST_DAY_OF_WEEK = new FirstDayOfWeek((short) 1);
+    public static final DateFormatPattern DATE_FORMAT = new DateFormatPattern("dd/MM/yyyy");
+}

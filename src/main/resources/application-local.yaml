@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   application:
@@ -7,7 +7,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/finapp
     username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:password}
+    password: ${POSTGRES_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -17,6 +17,7 @@ spring:
           time_zone: UTC
   flyway:
     enabled: true
+    ignore-migration-patterns: "*:missing"
 
 management:
   endpoints:

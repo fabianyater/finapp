@@ -1,0 +1,13 @@
+package com.fyr.finapp.adapters.driven.persistence.jpa.repository;
+
+import com.fyr.finapp.adapters.driven.persistence.jpa.entity.UserEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+public interface UserJpaRepository extends JpaRepository<UserEntity, UUID> {
+    Optional<UserEntity> findByEmail(String email);
+    Optional<UserEntity> findByRefreshToken(String refreshToken);
+    boolean existsByEmail(String email);
+}
