@@ -27,12 +27,14 @@ public interface ITransactionRepository {
             Set<String> types,
             String search,
             Instant dateFrom,
-            Instant dateTo
+            Instant dateTo,
+            Set<String> tags
     ) {
         public TransactionFilters {
             accountIds = accountIds == null ? Set.of() : accountIds;
             categoryIds = categoryIds == null ? Set.of() : categoryIds;
             types = types == null ? Set.of() : types;
+            tags = tags == null ? Set.of() : tags;
         }
     }
 
@@ -44,4 +46,29 @@ public interface ITransactionRepository {
             boolean hasPrevious
     ) {
     }
+
+    record CategorySummaryEntry(
+            String categoryId,
+            String name,
+            String color,
+            String icon,
+            long total
+    ) {
+    }
+
+    List<CategorySummaryEntry> findCategorySummary(UserId userId, String accountId, String type, Instant dateFrom, Instant dateTo);
+
+    List<Transaction> findDeletedByAccountId(AccountId accountId, UserId userId);
+
+    Optional<Transaction> findDeletedByIdAndAccountId(TransactionId id, AccountId accountId);
+
+    Optional<Transaction> findPairedTransfer(TransactionId excludeId, AccountId pairedAccountId, Instant occurredOn, Long amount, UserId userId);
+
+    List<Transaction> findAllByUserId(UserId userId, TransactionFilters filters);
+
+    List<String> findAllTagsByUserId(UserId userId);
+
+    void renameTag(UserId userId, String oldTag, String newTag);
+
+    void deleteTag(UserId userId, String tag);
 }

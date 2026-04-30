@@ -17,6 +17,7 @@ import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.shared.vo.Money;
 import com.fyr.finapp.domain.shared.vo.TransactionType;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
+import com.fyr.finapp.application.usecase.notification.BudgetAlertChecker;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 import com.fyr.finapp.domain.spi.transaction.ITransactionRepository;
@@ -25,8 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class UpdateTransactionService implements UpdateTransactionUseCase {
     private static final Logger log = LoggerFactory.getLogger(UpdateTransactionService.class);
@@ -36,20 +35,20 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
     private final IAccountRepository accountRepository;
     private final ICategoryRepository categoryRepository;
     private final AccountValidator accountValidator;
-
-    private static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS Z");
+    private final BudgetAlertChecker budgetAlertChecker;
 
     public UpdateTransactionService(IAuthenticationRepository authenticationRepository,
                                     ITransactionRepository transactionRepository,
                                     IAccountRepository accountRepository,
                                     ICategoryRepository categoryRepository,
-                                    AccountValidator accountValidator) {
+                                    AccountValidator accountValidator,
+                                    BudgetAlertChecker budgetAlertChecker) {
         this.authenticationRepository = authenticationRepository;
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
         this.accountValidator = accountValidator;
+        this.budgetAlertChecker = budgetAlertChecker;
     }
 
 
@@ -60,7 +59,14 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
         var transactionId = TransactionId.of(command.transactionId());
         log.debug("Updating transaction id={} userId={}", command.transactionId(), userId.value());
 
-        var transaction = getTransactionAndValidateOwnership(transactionId, userId);
+        var transaction = getTransactionAndValidateAccess(transactionId, userId);
+
+        if (transaction.getType().isTransfer()) {
+            throw new ValidationException(
+                    "Transfer transactions cannot be edited",
+                    TransactionErrorCode.INVALID_TYPE
+            );
+        }
 
         var originalState = captureOriginalTransactionState(transaction);
         var newState = prepareNewTransactionState(command, userId);
@@ -76,6 +82,14 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
 
         log.info("Transaction updated id={} userId={} type={} amount={} accountId={}",
                 command.transactionId(), userId.value(), command.type(), command.amount(), command.accountId());
+
+        if (newState.type() == TransactionType.EXPENSE) {
+            try {
+                budgetAlertChecker.check(userId.value(), newState.categoryId().value(), newState.category().getName().value());
+            } catch (Exception e) {
+                log.warn("Failed to check budget alert after update for transaction {}", command.transactionId(), e);
+            }
+        }
     }
 
     private OriginalTransactionState captureOriginalTransactionState(Transaction transaction) {
@@ -100,7 +114,7 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
         var type = TransactionType.fromString(command.type());
         var categoryId = CategoryId.of(command.categoryId());
 
-        var account = accountValidator.getAccountAndValidateOwnership(accountId, userId);
+        var account = accountValidator.getAccountAndValidateAccess(accountId, userId);
         accountValidator.validateAccountNotArchived(account);
 
         var category = getCategoryAndValidateOwnership(categoryId, userId);
@@ -179,8 +193,7 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
 
 
     private void updateTransaction(Transaction transaction, Command command, NewTransactionState newState) {
-        Instant occurredOn = OffsetDateTime.parse(command.occurredOn(), FORMATTER).toInstant();
-
+        Instant occurredOn = Instant.parse(command.occurredOn());
         transaction.update(
                 newState.type(),
                 newState.amount(),
@@ -188,7 +201,8 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
                 command.note(),
                 occurredOn,
                 newState.categoryId(),
-                newState.accountId()
+                newState.accountId(),
+                command.tags()
         );
     }
 
@@ -203,7 +217,7 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
         }
     }
 
-    private Transaction getTransactionAndValidateOwnership(TransactionId transactionId, UserId userId) {
+    private Transaction getTransactionAndValidateAccess(TransactionId transactionId, UserId userId) {
         var transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> {
                     log.warn("Transaction not found id={} userId={}", transactionId.value(), userId.value());
@@ -215,12 +229,8 @@ public class UpdateTransactionService implements UpdateTransactionUseCase {
                 });
 
         if (!transaction.getUserId().equals(userId)) {
-            log.warn("Unauthorized access to transaction id={} userId={}", transactionId.value(), userId.value());
-
-            throw new ForbiddenException(
-                    "You don't have access to this transaction",
-                    TransactionErrorCode.ACCESS_DENIED
-            );
+            // Not the direct owner — verify account access (throws ForbiddenException if denied)
+            accountValidator.getAccountAndValidateAccess(transaction.getAccountId(), userId);
         }
 
         return transaction;

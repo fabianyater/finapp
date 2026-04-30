@@ -10,6 +10,8 @@ import com.fyr.finapp.domain.shared.vo.Money;
 import com.fyr.finapp.domain.shared.vo.TransactionType;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Transaction {
@@ -24,8 +26,14 @@ public class Transaction {
     private Instant updatedAt;
     private Instant deletedAt;
     private final UserId userId;
+    private String creatorName;
     private CategoryId categoryId;
+    private String categoryName;
+    private String categoryColor;
+    private String categoryIcon;
     private AccountId accountId;
+    private AccountId toAccountId;
+    private List<String> tags;
 
     private Transaction(
             TransactionId id,
@@ -39,8 +47,14 @@ public class Transaction {
             Instant updatedAt,
             Instant deletedAt,
             UserId userId,
+            String creatorName,
             CategoryId categoryId,
-            AccountId accountId
+            String categoryName,
+            String categoryColor,
+            String categoryIcon,
+            AccountId accountId,
+            AccountId toAccountId,
+            List<String> tags
     ) {
         this.id = id;
         this.type = type;
@@ -53,8 +67,14 @@ public class Transaction {
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
         this.userId = userId;
+        this.creatorName = creatorName;
         this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.categoryColor = categoryColor;
+        this.categoryIcon = categoryIcon;
         this.accountId = accountId;
+        this.toAccountId = toAccountId;
+        this.tags = tags != null ? new ArrayList<>(tags) : new ArrayList<>();
     }
 
     public static Transaction create(
@@ -65,7 +85,9 @@ public class Transaction {
             Instant occurredOn,
             UserId userId,
             CategoryId categoryId,
-            AccountId accountId
+            AccountId accountId,
+            AccountId toAccountId,
+            List<String> tags
     ) {
         Instant now = Instant.now();
 
@@ -95,8 +117,12 @@ public class Transaction {
                 now,
                 null,
                 userId,
+                null,
                 categoryId,
-                accountId
+                null, null, null,
+                accountId,
+                toAccountId,
+                tags
         );
     }
 
@@ -111,8 +137,14 @@ public class Transaction {
             Instant updatedAt,
             Instant deletedAt,
             UserId userId,
+            String creatorName,
             CategoryId categoryId,
-            AccountId accountId
+            String categoryName,
+            String categoryColor,
+            String categoryIcon,
+            AccountId accountId,
+            AccountId toAccountId,
+            List<String> tags
     ) {
         return new Transaction(
                 id,
@@ -126,8 +158,14 @@ public class Transaction {
                 updatedAt,
                 deletedAt,
                 userId,
+                creatorName,
                 categoryId,
-                accountId
+                categoryName,
+                categoryColor,
+                categoryIcon,
+                accountId,
+                toAccountId,
+                tags
         );
     }
 
@@ -137,6 +175,12 @@ public class Transaction {
         }
 
         this.deletedAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    public void restore() {
+        if (!isDeleted()) throw new IllegalStateException("Transaction is not deleted");
+        this.deletedAt = null;
         this.updatedAt = Instant.now();
     }
 
@@ -152,7 +196,8 @@ public class Transaction {
             String note,
             Instant occurredOn,
             CategoryId categoryId,
-            AccountId accountId
+            AccountId accountId,
+            List<String> tags
     ) {
         if (isDeleted()) {
             throw new ValidationException(
@@ -183,6 +228,7 @@ public class Transaction {
         this.occurredOn = occurredOn;
         this.categoryId = categoryId;
         this.accountId = accountId;
+        this.tags = tags != null ? new ArrayList<>(tags) : new ArrayList<>();
         this.updatedAt = Instant.now();
     }
 
@@ -265,12 +311,28 @@ public class Transaction {
         return userId;
     }
 
+    public String getCreatorName() {
+        return creatorName;
+    }
+
     public CategoryId getCategoryId() {
         return categoryId;
     }
 
+    public String getCategoryName() { return categoryName; }
+    public String getCategoryColor() { return categoryColor; }
+    public String getCategoryIcon() { return categoryIcon; }
+
     public AccountId getAccountId() {
         return accountId;
+    }
+
+    public AccountId getToAccountId() {
+        return toAccountId;
+    }
+
+    public List<String> getTags() {
+        return List.copyOf(tags);
     }
 
     @Override

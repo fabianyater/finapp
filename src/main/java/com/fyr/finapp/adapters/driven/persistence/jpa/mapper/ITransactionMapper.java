@@ -16,6 +16,10 @@ import org.mapstruct.Named;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface ITransactionMapper {
@@ -23,6 +27,7 @@ public interface ITransactionMapper {
     @Mapping(target = "accounts", ignore = true)
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "toAccount", ignore = true)
     @Mapping(target = "type", source = "type")
     @Mapping(target = "amount", source = "amount.amount")
     @Mapping(target = "currency", source = "currency.code")
@@ -32,12 +37,14 @@ public interface ITransactionMapper {
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "deletedAt", source = "deletedAt", qualifiedByName = "instantToOffsetDateTime")
+    @Mapping(target = "tags", source = "tags", qualifiedByName = "listToSet")
     TransactionEntity toEntity(Transaction transaction);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "accounts", ignore = true)
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "toAccount", ignore = true)
     @Mapping(target = "type", source = "type")
     @Mapping(target = "amount", source = "amount.amount")
     @Mapping(target = "currency", source = "currency.code")
@@ -47,12 +54,23 @@ public interface ITransactionMapper {
     @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "instantToOffsetDateTime")
     @Mapping(target = "deletedAt", source = "deletedAt", qualifiedByName = "instantToOffsetDateTime")
+    @Mapping(target = "tags", source = "tags", qualifiedByName = "listToSet")
     void updateEntityFromDomain(Transaction domain, @MappingTarget TransactionEntity entity);
 
     default Transaction toDomain(TransactionEntity entity) {
         if (entity == null) {
             return null;
         }
+        var cat = entity.getCategories();
+        CategoryId categoryId = cat != null ? CategoryId.of(cat.getId().toString()) : null;
+        String categoryName  = cat != null ? cat.getName()  : null;
+        String categoryColor = cat != null ? cat.getColor() : null;
+        String categoryIcon  = cat != null ? cat.getIcon()  : null;
+        AccountId toAccountId = entity.getToAccount() != null
+                ? AccountId.of(entity.getToAccount().getId().toString())
+                : null;
+        var user = entity.getUser();
+        String creatorName = user.getName() + " " + user.getSurname();
         return Transaction.reconstruct(
                 TransactionId.of(entity.getId().toString()),
                 TransactionType.fromString(entity.getType()),
@@ -63,10 +81,15 @@ public interface ITransactionMapper {
                 offsetDateTimeToInstant(entity.getCreatedAt()),
                 offsetDateTimeToInstant(entity.getUpdatedAt()),
                 offsetDateTimeToInstant(entity.getDeletedAt()),
-                UserId.of(entity.getUser().getId().toString()),
-                CategoryId.of(entity.getCategories().getId().toString()),
-                AccountId.of(entity.getAccounts().getId().toString())
-
+                UserId.of(user.getId().toString()),
+                creatorName,
+                categoryId,
+                categoryName,
+                categoryColor,
+                categoryIcon,
+                AccountId.of(entity.getAccounts().getId().toString()),
+                toAccountId,
+                entity.getTags() != null ? new ArrayList<>(entity.getTags()) : new ArrayList<>()
         );
     }
 
@@ -78,6 +101,11 @@ public interface ITransactionMapper {
     @Named("offsetDateTimeToInstant")
     default Instant offsetDateTimeToInstant(OffsetDateTime value) {
         return value == null ? null : value.toInstant();
+    }
+
+    @Named("listToSet")
+    default Set<String> listToSet(List<String> list) {
+        return list == null ? new HashSet<>() : new HashSet<>(list);
     }
 
 }

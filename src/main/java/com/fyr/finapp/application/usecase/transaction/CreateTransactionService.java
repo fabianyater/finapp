@@ -11,10 +11,12 @@ import com.fyr.finapp.domain.model.category.Category;
 import com.fyr.finapp.domain.model.category.exception.CategoryErrorCode;
 import com.fyr.finapp.domain.model.category.vo.CategoryId;
 import com.fyr.finapp.domain.model.transaction.Transaction;
+import com.fyr.finapp.domain.model.transaction.exception.TransactionErrorCode;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.shared.vo.Money;
 import com.fyr.finapp.domain.shared.vo.TransactionType;
 import com.fyr.finapp.domain.spi.account.IAccountRepository;
+import com.fyr.finapp.application.usecase.notification.BudgetAlertChecker;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import com.fyr.finapp.domain.spi.category.ICategoryRepository;
 import com.fyr.finapp.domain.spi.transaction.ITransactionRepository;
@@ -33,17 +35,20 @@ public class CreateTransactionService implements CreateTransactionUseCase {
     private final IAccountRepository accountRepository;
     private final ICategoryRepository categoryRepository;
     private final AccountValidator accountValidator;
+    private final BudgetAlertChecker budgetAlertChecker;
 
     public CreateTransactionService(IAuthenticationRepository authenticationRepository,
                                     ITransactionRepository transactionRepository,
                                     IAccountRepository accountRepository,
                                     ICategoryRepository categoryRepository,
-                                    AccountValidator accountValidator) {
+                                    AccountValidator accountValidator,
+                                    BudgetAlertChecker budgetAlertChecker) {
         this.authenticationRepository = authenticationRepository;
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
         this.accountValidator = accountValidator;
+        this.budgetAlertChecker = budgetAlertChecker;
     }
 
     @Override
@@ -56,7 +61,14 @@ public class CreateTransactionService implements CreateTransactionUseCase {
         var categoryId = CategoryId.of(command.categoryId());
         var type = TransactionType.fromString(command.type());
 
-        var account = accountValidator.getAccountAndValidateOwnership(accountId, userId);
+        if (type.isTransfer()) {
+            throw new ValidationException(
+                    "Use POST /transfers to create transfer transactions",
+                    TransactionErrorCode.INVALID_TYPE
+            );
+        }
+
+        var account = accountValidator.getAccountAndValidateAccess(accountId, userId);
         validateAccountNotArchived(account);
 
         var category = getCategoryAndValidateOwnership(categoryId, userId);
@@ -82,7 +94,9 @@ public class CreateTransactionService implements CreateTransactionUseCase {
                 Instant.parse(command.occurredOn()),
                 userId,
                 categoryId,
-                accountId
+                accountId,
+                null,
+                command.tags()
         );
 
         account.applyTransaction(type, amount);
@@ -92,6 +106,14 @@ public class CreateTransactionService implements CreateTransactionUseCase {
 
         log.info("Transaction created id={} type={} amount={} accountId={} userId={}",
                 transaction.getId().value(), type, command.amount(), accountId.value(), userId.value());
+
+        if (type == TransactionType.EXPENSE) {
+            try {
+                budgetAlertChecker.check(userId.value(), categoryId.value(), category.getName().value());
+            } catch (Exception e) {
+                log.warn("Failed to check budget alert for transaction {}", transaction.getId().value(), e);
+            }
+        }
 
         return new Result(transaction.getId().value().toString());
     }

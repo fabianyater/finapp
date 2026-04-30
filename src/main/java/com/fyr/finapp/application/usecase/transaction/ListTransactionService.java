@@ -49,7 +49,8 @@ public class ListTransactionService implements ListTransactionUseCase {
                 query.types(),
                 query.search(),
                 query.dateFrom(),
-                query.dateTo()
+                query.dateTo(),
+                query.tags()
         );
     }
 
@@ -62,7 +63,13 @@ public class ListTransactionService implements ListTransactionUseCase {
                 transaction.getNote(),
                 transaction.getOccurredOn().toString(),
                 transaction.getAccountId().value().toString(),
-                transaction.getCategoryId() != null ? transaction.getCategoryId().value().toString() : null
+                transaction.getCategoryId() != null ? transaction.getCategoryId().value().toString() : null,
+                transaction.getCategoryName(),
+                transaction.getCategoryColor(),
+                transaction.getCategoryIcon(),
+                transaction.getToAccountId() != null ? transaction.getToAccountId().value().toString() : null,
+                transaction.getTags(),
+                transaction.getCreatorName()
         );
     }
 }

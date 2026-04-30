@@ -1,5 +1,7 @@
 package com.fyr.finapp.domain.api.transaction;
 
+import java.util.List;
+
 public interface CreateTransactionUseCase {
     Result create(Command command);
 
@@ -10,7 +12,8 @@ public interface CreateTransactionUseCase {
             String note,
             String occurredOn,
             String categoryId,
-            String accountId) {
+            String accountId,
+            List<String> tags) {
     }
 
     record Result(String id) {

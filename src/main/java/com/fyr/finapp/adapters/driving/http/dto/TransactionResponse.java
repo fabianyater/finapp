@@ -2,6 +2,8 @@ package com.fyr.finapp.adapters.driving.http.dto;
 
 import com.fyr.finapp.domain.api.transaction.TransactionDetailsUseCase;
 
+import java.util.List;
+
 public record TransactionResponse(
         String id,
         String type,
@@ -9,7 +11,8 @@ public record TransactionResponse(
         String description,
         String note,
         String occurredOn,
-        String categoryName) {
+        String categoryName,
+        List<String> tags) {
     public static TransactionResponse from(TransactionDetailsUseCase.TransactionDetailsResult transactionDetailsResult) {
         return new TransactionResponse(
                 transactionDetailsResult.id(),
@@ -18,7 +21,8 @@ public record TransactionResponse(
                 transactionDetailsResult.description(),
                 transactionDetailsResult.note(),
                 transactionDetailsResult.occurredOn(),
-                transactionDetailsResult.categoryName()
+                transactionDetailsResult.categoryName(),
+                transactionDetailsResult.tags()
         );
     }
 }

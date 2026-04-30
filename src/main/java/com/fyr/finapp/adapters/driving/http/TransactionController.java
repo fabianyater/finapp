@@ -1,10 +1,12 @@
 package com.fyr.finapp.adapters.driving.http;
 
 import com.fyr.finapp.adapters.driving.http.dto.CreateTransactionRequest;
+import com.fyr.finapp.adapters.driving.http.dto.DeletedTransactionResponse;
 import com.fyr.finapp.adapters.driving.http.dto.PagedTransactionResponse;
 import com.fyr.finapp.adapters.driving.http.dto.TransactionResponse;
 import com.fyr.finapp.adapters.driving.http.dto.UpdateTransactionRequest;
 import com.fyr.finapp.domain.api.transaction.*;
+import org.springframework.http.HttpHeaders;
 import com.fyr.finapp.domain.shared.pagination.PageRequest;
 import com.fyr.finapp.domain.shared.pagination.SortDirection;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +24,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 @Tag(name = "Transactions", description = "Transaction management endpoints")
@@ -32,8 +35,15 @@ public class TransactionController {
     private final CreateTransactionUseCase createTransactionUseCase;
     private final UpdateTransactionUseCase updateTransactionUseCase;
     private final ListTransactionUseCase listTransactionUseCase;
+    private final ListTransactionTagsUseCase listTransactionTagsUseCase;
+    private final RenameTagUseCase renameTagUseCase;
+    private final DeleteTagUseCase deleteTagUseCase;
     private final TransactionDetailsUseCase transactionDetailsUseCase;
     private final DeleteTransactionUseCase deleteTransactionUseCase;
+    private final ListDeletedTransactionsUseCase listDeletedTransactionsUseCase;
+    private final RestoreTransactionUseCase restoreTransactionUseCase;
+    private final DeleteTransferPairUseCase deleteTransferPairUseCase;
+    private final ExportTransactionsCsvUseCase exportTransactionsCsvUseCase;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/{accountId}/transactions", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -54,7 +64,8 @@ public class TransactionController {
                 request.note(),
                 request.occurredOn(),
                 request.categoryId(),
-                accountId
+                accountId,
+                request.tags()
         );
 
         var result = createTransactionUseCase.create(command);
@@ -84,7 +95,8 @@ public class TransactionController {
                 request.note(),
                 request.occurredOn(),
                 accountId,
-                request.categoryId()
+                request.categoryId(),
+                request.tags()
         );
 
         updateTransactionUseCase.update(command);
@@ -114,7 +126,9 @@ public class TransactionController {
             @Parameter(description = "Filter transactions until this date")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-            Instant dateTo
+            Instant dateTo,
+
+            @RequestParam(required = false) Set<String> tags
     ) {
         var query = new ListTransactionUseCase.Query(
                 new PageRequest(page, size, sortBy, direction),
@@ -123,7 +137,8 @@ public class TransactionController {
                 types,
                 search,
                 dateFrom,
-                dateTo
+                dateTo,
+                tags
         );
 
         var result = listTransactionUseCase.list(query);
@@ -146,6 +161,76 @@ public class TransactionController {
             @PathVariable String txnId) {
         deleteTransactionUseCase.delete(txnId, accountId);
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{accountId}/transactions/{txnId}/transfer")
+    public ResponseEntity<Void> deleteTransfer(
+            @PathVariable String accountId,
+            @PathVariable String txnId) {
+        deleteTransferPairUseCase.delete(txnId, accountId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{accountId}/transactions/deleted")
+    public ResponseEntity<List<DeletedTransactionResponse>> listDeleted(@PathVariable String accountId) {
+        var results = listDeletedTransactionsUseCase.execute(accountId);
+        var response = results.stream().map(DeletedTransactionResponse::from).toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/transactions/tags")
+    public ResponseEntity<List<String>> listTags() {
+        return ResponseEntity.ok(listTransactionTagsUseCase.list());
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/transactions/tags/{tag}")
+    public ResponseEntity<Void> renameTag(
+            @PathVariable String tag,
+            @RequestBody RenameTagRequest request) {
+        renameTagUseCase.rename(tag, request.newName());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/transactions/tags/{tag}")
+    public ResponseEntity<Void> deleteTag(@PathVariable String tag) {
+        deleteTagUseCase.delete(tag);
+        return ResponseEntity.noContent().build();
+    }
+
+    record RenameTagRequest(String newName) {}
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/transactions/export")
+    public ResponseEntity<String> exportCsv(
+            @RequestParam(required = false) Set<String> accountIds,
+            @RequestParam(required = false) Set<String> categoryIds,
+            @RequestParam(required = false) Set<String> types,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant dateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant dateTo) {
+
+        var query = new ExportTransactionsCsvUseCase.Query(accountIds, categoryIds, types, search, dateFrom, dateTo);
+        String csv = exportTransactionsCsvUseCase.export(query);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"transactions.csv\"")
+                .body(csv);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{accountId}/transactions/{txnId}/restore")
+    public ResponseEntity<Void> restore(
+            @PathVariable String accountId,
+            @PathVariable String txnId) {
+        restoreTransactionUseCase.restore(txnId, accountId);
         return ResponseEntity.noContent().build();
     }
 }

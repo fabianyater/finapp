@@ -35,7 +35,13 @@ public record PagedTransactionResponse(
             String note,
             String occurredOn,
             String accountId,
-            String categoryId
+            String categoryId,
+            String categoryName,
+            String categoryColor,
+            String categoryIcon,
+            String toAccountId,
+            List<String> tags,
+            String createdBy
     ) {
         public static TransactionDto from(ListTransactionUseCase.TransactionResult transaction) {
             return new TransactionDto(
@@ -46,7 +52,13 @@ public record PagedTransactionResponse(
                     transaction.note(),
                     transaction.occurredOn(),
                     transaction.accountId(),
-                    transaction.categoryId()
+                    transaction.categoryId(),
+                    transaction.categoryName(),
+                    transaction.categoryColor(),
+                    transaction.categoryIcon(),
+                    transaction.toAccountId(),
+                    transaction.tags(),
+                    transaction.createdBy()
             );
         }
     }

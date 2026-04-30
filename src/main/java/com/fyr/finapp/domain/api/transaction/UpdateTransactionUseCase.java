@@ -1,5 +1,7 @@
 package com.fyr.finapp.domain.api.transaction;
 
+import java.util.List;
+
 public interface UpdateTransactionUseCase {
     void update(Command command);
 
@@ -11,6 +13,7 @@ public interface UpdateTransactionUseCase {
             String note,
             String occurredOn,
             String accountId,
-            String categoryId) {
+            String categoryId,
+            List<String> tags) {
     }
 }

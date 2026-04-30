@@ -46,9 +46,11 @@ public class TransactionDetailsService implements TransactionDetailsUseCase {
                     return new IllegalArgumentException("Transaction not found");
                 });
 
-        var categoryName = categoryRepository.findById(transaction.getCategoryId())
-                .map(Category::getName)
-                .orElse(CategoryName.of("Unknown"));
+        var categoryName = transaction.getCategoryId() != null
+                ? categoryRepository.findById(transaction.getCategoryId())
+                        .map(Category::getName)
+                        .orElse(CategoryName.of("Unknown"))
+                : CategoryName.of("Transferencia");
 
         return new TransactionDetailsResult(
                 transaction.getId().value().toString(),
@@ -57,7 +59,8 @@ public class TransactionDetailsService implements TransactionDetailsUseCase {
                 transaction.getDescription(),
                 transaction.getNote(),
                 transaction.getOccurredOn().toString(),
-                categoryName.value()
+                categoryName.value(),
+                transaction.getTags()
         );
     }
 }

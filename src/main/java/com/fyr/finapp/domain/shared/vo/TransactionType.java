@@ -4,14 +4,15 @@ import com.fyr.finapp.domain.exception.ValidationException;
 
 public enum TransactionType {
     INCOME,
-    EXPENSE;
+    EXPENSE,
+    TRANSFER;
 
     public static TransactionType fromString(String value) {
         try {
             return TransactionType.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new ValidationException(
-                    "Invalid category type: " + value + ". Must be EXPENSE or INCOME",
+                    "Invalid transaction type: " + value + ". Must be EXPENSE, INCOME or TRANSFER",
                     null //TODO: Define error code (category or transaction)
             );
         }
@@ -23,5 +24,9 @@ public enum TransactionType {
 
     public boolean isIncome() {
         return this == INCOME;
+    }
+
+    public boolean isTransfer() {
+        return this == TRANSFER;
     }
 }
