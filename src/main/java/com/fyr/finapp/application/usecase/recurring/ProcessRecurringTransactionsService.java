@@ -35,7 +35,6 @@ public class ProcessRecurringTransactionsService {
         this.notificationRepository = notificationRepository;
     }
 
-    @Scheduled(cron = "0 0 20 * * *")
     public void process() {
         LocalDate today = LocalDate.now();
         List<RecurringTransaction> due = recurringTransactionRepository.findDue(today);
