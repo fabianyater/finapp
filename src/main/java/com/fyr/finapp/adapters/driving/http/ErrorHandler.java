@@ -73,42 +73,26 @@ public class ErrorHandler {
 
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ApiError> handleDomainValidation(DomainException ex) {
-        log.warn("Domain exception [{}] - {}", ex.getCode().name(), ex.getMessage());
+        String code = ex.getCode() != null ? ex.getCode().name() : ex.getCategory().name();
+        HttpStatus status = statusOf(ex.getCategory());
 
-        var body = new ApiError(
-                ex.getCode().name(),
-                statusOf(ex.getCategory()).value(),
-                ex.getMessage(),
-                Map.of()
-        );
+        log.warn("Domain exception [{}] - {}", code, ex.getMessage());
 
-        return ResponseEntity.status(statusOf(ex.getCategory())).body(body);
+        var body = new ApiError(code, status.value(), ex.getMessage(), Map.of());
+
+        return ResponseEntity.status(status).body(body);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
-        log.warn("Failed login attempt");
+        log.warn("Authentication failed: {}", ex.getMessage());
 
-        var body = new ApiError(
-                ex.getClass().getSimpleName(),
-                HttpStatus.UNAUTHORIZED.value(),
-                "Invalid credentials",
-                Map.of()
-        );
+        // Spring's internal "Bad credentials" message is not user-friendly
+        String message = "Bad credentials".equalsIgnoreCase(ex.getMessage())
+                ? "Invalid email or password"
+                : ex.getMessage();
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException ex) {
-        log.warn("Invalid token: {}", ex.getMessage());
-
-        var body = new ApiError(
-                "INVALID_TOKEN",
-                HttpStatus.UNAUTHORIZED.value(),
-                ex.getMessage(),
-                Map.of()
-        );
+        var body = new ApiError("INVALID_CREDENTIALS", HttpStatus.UNAUTHORIZED.value(), message, Map.of());
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }

@@ -4,6 +4,7 @@ import com.fyr.finapp.domain.api.account.AcceptInvitationUseCase;
 import com.fyr.finapp.domain.exception.ForbiddenException;
 import com.fyr.finapp.domain.exception.NotFoundException;
 import com.fyr.finapp.domain.exception.ValidationException;
+import com.fyr.finapp.domain.model.account.exception.AccountErrorCode;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.spi.account.IAccountInvitationRepository;
@@ -14,6 +15,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fyr.finapp.domain.exception.ValidationException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -40,16 +42,16 @@ public class AcceptInvitationService implements AcceptInvitationUseCase {
     @Transactional
     public void accept(String invitationId) {
         var userId = authenticationRepository.getCurrentUserId();
-        var id = UUID.fromString(invitationId);
+        var id = parseInvitationId(invitationId);
 
         var invitation = invitationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Invitation not found", null));
+                .orElseThrow(() -> new NotFoundException("Invitation not found", AccountErrorCode.INVITATION_NOT_FOUND));
 
         if (!invitation.inviteeId().equals(userId.value())) {
-            throw new ForbiddenException("Not your invitation", null);
+            throw new ForbiddenException("Not your invitation", AccountErrorCode.INVITATION_FORBIDDEN);
         }
         if (!"PENDING".equals(invitation.status())) {
-            throw new ValidationException("Invitation is no longer pending", null);
+            throw new ValidationException("Invitation is no longer pending", AccountErrorCode.INVITATION_NOT_PENDING);
         }
 
         invitationRepository.accept(id);
@@ -68,6 +70,14 @@ public class AcceptInvitationService implements AcceptInvitationUseCase {
             ));
         } catch (Exception e) {
             log.warn("Failed to send notification for invitation accept {}", invitationId, e);
+        }
+    }
+
+    private UUID parseInvitationId(String invitationId) {
+        try {
+            return UUID.fromString(invitationId);
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Invalid invitation ID format: " + invitationId, AccountErrorCode.INVITATION_NOT_FOUND);
         }
     }
 }

@@ -2,8 +2,12 @@ package com.fyr.finapp.application.usecase.recurring;
 
 import com.fyr.finapp.application.usecase.account.AccountValidator;
 import com.fyr.finapp.domain.api.recurring.CreateRecurringTransactionUseCase;
+import com.fyr.finapp.domain.exception.ForbiddenException;
+import com.fyr.finapp.domain.exception.NotFoundException;
 import com.fyr.finapp.domain.exception.ValidationException;
+import com.fyr.finapp.domain.model.account.exception.AccountErrorCode;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
+import com.fyr.finapp.domain.model.category.exception.CategoryErrorCode;
 import com.fyr.finapp.domain.model.category.vo.CategoryId;
 import com.fyr.finapp.domain.model.recurring.RecurringTransaction;
 import com.fyr.finapp.domain.shared.vo.Money;
@@ -53,16 +57,16 @@ public class CreateRecurringTransactionService implements CreateRecurringTransac
         var account = accountValidator.getAccountAndValidateOwnership(accountId, userId);
 
         if (account.isArchived()) {
-            throw new ValidationException("Cannot create recurring transaction for archived account", null);
+            throw new ValidationException("Cannot create recurring transaction for archived account", AccountErrorCode.ACCOUNT_ARCHIVED);
         }
 
         CategoryId categoryId = null;
         if (command.categoryId() != null && !command.categoryId().isBlank()) {
             categoryId = CategoryId.of(command.categoryId());
             var category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new ValidationException("Category not found", null));
+                    .orElseThrow(() -> new NotFoundException("Category not found", CategoryErrorCode.CATEGORY_NOT_FOUND));
             if (!category.getUserId().equals(userId)) {
-                throw new ValidationException("Access denied to category", null);
+                throw new ForbiddenException("Access denied to this category", CategoryErrorCode.ACCESS_DENIED);
             }
         }
 

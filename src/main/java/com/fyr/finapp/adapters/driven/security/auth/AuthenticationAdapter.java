@@ -11,6 +11,7 @@ import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.spi.auth.IAuthenticationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,14 +45,14 @@ public class AuthenticationAdapter implements IAuthenticationRepository {
     @Override
     public AuthenticateUseCase.AuthResult refreshToken(String refreshToken) {
         var userEntity = userJpaRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
 
         if (userEntity.getRefreshTokenExpiresAt() == null ||
                 userEntity.getRefreshTokenExpiresAt().isBefore(OffsetDateTime.now())) {
             userEntity.setRefreshToken(null);
             userEntity.setRefreshTokenExpiresAt(null);
             userJpaRepository.save(userEntity);
-            throw new IllegalArgumentException("Refresh token expired");
+            throw new BadCredentialsException("Refresh token expired, please log in again");
         }
 
         SecurityUser principal = (SecurityUser) userDetailsService.loadUserByUsername(userEntity.getEmail());
@@ -63,17 +64,14 @@ public class AuthenticationAdapter implements IAuthenticationRepository {
 
     @Override
     public UserId getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalStateException("No authenticated user found");
+        if (authentication == null || !authentication.isAuthenticated()
+                || !(authentication.getPrincipal() instanceof SecurityUser userDetails)) {
+            throw new BadCredentialsException("Session expired or not authenticated");
         }
 
-        SecurityUser userDetails = Objects.requireNonNull((SecurityUser) authentication.getPrincipal());
         var id = Objects.requireNonNull(userDetails.getId());
-
         return UserId.of(id.toString());
     }
 

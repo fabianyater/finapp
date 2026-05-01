@@ -2,6 +2,7 @@ package com.fyr.finapp.domain.model.recurring;
 
 import com.fyr.finapp.domain.exception.ValidationException;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
+import com.fyr.finapp.domain.model.recurring.exception.RecurringTransactionErrorCode;
 import com.fyr.finapp.domain.model.category.vo.CategoryId;
 import com.fyr.finapp.domain.model.user.vo.UserId;
 import com.fyr.finapp.domain.shared.vo.Money;
@@ -79,10 +80,10 @@ public class RecurringTransaction {
             LocalDate nextDueDate
     ) {
         if (amount.isNegative() || amount.isZero()) {
-            throw new ValidationException("Amount must be positive", null);
+            throw new ValidationException("Amount must be positive", RecurringTransactionErrorCode.AMOUNT_MUST_BE_POSITIVE);
         }
         if (description == null || description.isBlank()) {
-            throw new ValidationException("Description cannot be empty", null);
+            throw new ValidationException("Description cannot be empty", RecurringTransactionErrorCode.DESCRIPTION_REQUIRED);
         }
 
         Instant now = Instant.now();
@@ -130,10 +131,10 @@ public class RecurringTransaction {
             LocalDate nextDueDate
     ) {
         if (amount.isNegative() || amount.isZero()) {
-            throw new ValidationException("Amount must be positive", null);
+            throw new ValidationException("Amount must be positive", RecurringTransactionErrorCode.AMOUNT_MUST_BE_POSITIVE);
         }
         if (description == null || description.isBlank()) {
-            throw new ValidationException("Description cannot be empty", null);
+            throw new ValidationException("Description cannot be empty", RecurringTransactionErrorCode.DESCRIPTION_REQUIRED);
         }
         this.accountId = accountId;
         this.categoryId = categoryId;

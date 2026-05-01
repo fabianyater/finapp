@@ -22,7 +22,10 @@ public enum AccountErrorCode implements DomainErrorCode {
     MEMBER_NOT_FOUND(ErrorCategory.NOT_FOUND),
     ALREADY_MEMBER(ErrorCategory.VALIDATION),
     CANNOT_INVITE_SELF(ErrorCategory.VALIDATION),
-    CANNOT_REMOVE_OWNER(ErrorCategory.VALIDATION);
+    CANNOT_REMOVE_OWNER(ErrorCategory.VALIDATION),
+    INVITATION_NOT_FOUND(ErrorCategory.NOT_FOUND),
+    INVITATION_FORBIDDEN(ErrorCategory.FORBIDDEN),
+    INVITATION_NOT_PENDING(ErrorCategory.VALIDATION);
 
     private final ErrorCategory category;
 

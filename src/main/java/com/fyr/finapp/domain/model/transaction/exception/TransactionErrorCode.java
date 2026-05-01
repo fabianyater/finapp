@@ -25,6 +25,6 @@ public enum TransactionErrorCode implements DomainErrorCode {
 
     @Override
     public ErrorCategory category() {
-        return null;
+        return category;
     }
 }

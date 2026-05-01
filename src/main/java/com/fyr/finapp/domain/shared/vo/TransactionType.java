@@ -1,6 +1,7 @@
 package com.fyr.finapp.domain.shared.vo;
 
 import com.fyr.finapp.domain.exception.ValidationException;
+import com.fyr.finapp.domain.model.transaction.exception.TransactionErrorCode;
 
 public enum TransactionType {
     INCOME,
@@ -13,7 +14,7 @@ public enum TransactionType {
         } catch (IllegalArgumentException e) {
             throw new ValidationException(
                     "Invalid transaction type: " + value + ". Must be EXPENSE, INCOME or TRANSFER",
-                    null //TODO: Define error code (category or transaction)
+                    TransactionErrorCode.INVALID_TYPE
             );
         }
     }

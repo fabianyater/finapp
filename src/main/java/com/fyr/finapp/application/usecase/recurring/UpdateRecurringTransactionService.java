@@ -3,10 +3,13 @@ package com.fyr.finapp.application.usecase.recurring;
 import com.fyr.finapp.application.usecase.account.AccountValidator;
 import com.fyr.finapp.domain.api.recurring.UpdateRecurringTransactionUseCase;
 import com.fyr.finapp.domain.exception.ForbiddenException;
+import com.fyr.finapp.domain.exception.NotFoundException;
 import com.fyr.finapp.domain.exception.ValidationException;
 import com.fyr.finapp.domain.model.account.vo.AccountId;
+import com.fyr.finapp.domain.model.category.exception.CategoryErrorCode;
 import com.fyr.finapp.domain.model.category.vo.CategoryId;
 import com.fyr.finapp.domain.model.recurring.RecurringTransactionId;
+import com.fyr.finapp.domain.model.recurring.exception.RecurringTransactionErrorCode;
 import com.fyr.finapp.domain.shared.vo.Money;
 import com.fyr.finapp.domain.shared.vo.RecurringFrequency;
 import com.fyr.finapp.domain.shared.vo.TransactionType;
@@ -45,10 +48,10 @@ public class UpdateRecurringTransactionService implements UpdateRecurringTransac
         var id = RecurringTransactionId.of(command.id());
 
         var recurring = recurringTransactionRepository.findById(id, userId)
-                .orElseThrow(() -> new ValidationException("Recurring transaction not found", null));
+                .orElseThrow(() -> new NotFoundException("Recurring transaction not found", RecurringTransactionErrorCode.NOT_FOUND));
 
         if (!recurring.getUserId().equals(userId)) {
-            throw new ForbiddenException("Access denied", null);
+            throw new ForbiddenException("Access denied", RecurringTransactionErrorCode.ACCESS_DENIED);
         }
 
         var accountId = AccountId.of(command.accountId());
@@ -61,9 +64,9 @@ public class UpdateRecurringTransactionService implements UpdateRecurringTransac
         if (command.categoryId() != null && !command.categoryId().isBlank()) {
             categoryId = CategoryId.of(command.categoryId());
             var category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new ValidationException("Category not found", null));
+                    .orElseThrow(() -> new NotFoundException("Category not found", CategoryErrorCode.CATEGORY_NOT_FOUND));
             if (!category.getUserId().equals(userId)) {
-                throw new ValidationException("Access denied to category", null);
+                throw new ForbiddenException("Access denied to this category", CategoryErrorCode.ACCESS_DENIED);
             }
         }
 

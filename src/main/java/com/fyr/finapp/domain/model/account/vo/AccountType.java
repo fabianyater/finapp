@@ -38,7 +38,7 @@ public enum AccountType {
         } catch (IllegalArgumentException e) {
             throw new ValidationException(
                     "Invalid account type: " + type + ". Valid types: CASH, BANK, CARD",
-                    AccountErrorCode.NAME_TOO_LONG
+                    AccountErrorCode.TYPE_INVALID
             );
         }
     }

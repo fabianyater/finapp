@@ -68,15 +68,15 @@ public class JwtProvider {
             parser().parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.error("token expired");
+            log.debug("JWT expired");
         } catch (UnsupportedJwtException e) {
-            log.error("token unsupported");
+            log.warn("Unsupported JWT: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            log.error("token malformed");
+            log.warn("Malformed JWT: {}", e.getMessage());
         } catch (SignatureException e) {
-            log.error("bad signature");
+            log.warn("Invalid JWT signature: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            log.error("illegal args");
+            log.warn("Invalid JWT argument: {}", e.getMessage());
         }
         return false;
     }
