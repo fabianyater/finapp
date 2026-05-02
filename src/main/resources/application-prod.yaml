@@ -2,6 +2,8 @@ server:
   port: ${PORT:8081}
 
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.micrometer.metrics.autoconfigure.system.SystemMetricsAutoConfiguration
   main:
     lazy-initialization: true
   datasource:
