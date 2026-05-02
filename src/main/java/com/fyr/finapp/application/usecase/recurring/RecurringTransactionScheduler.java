@@ -11,7 +11,7 @@ public class RecurringTransactionScheduler {
         this.processService = processService;
     }
 
-    @Scheduled(cron = "0 0 20 * * *", zone = "America/Bogota")
+    @Scheduled(cron = "0 0 17 * * *", zone = "America/Bogota")
     public void trigger() {
         processService.process();
     }
