@@ -5,7 +5,7 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.micrometer.metrics.autoconfigure.system.SystemMetricsAutoConfiguration
-      - org.springframework.boot.tomcat.metrics.TomcatMetricsAutoConfiguration
+      - org.springframework.boot.tomcat.autoconfigure.metrics.TomcatMetricsAutoConfiguration
   main:
     lazy-initialization: true
   datasource:
